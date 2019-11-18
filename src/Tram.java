@@ -6,5 +6,6 @@
    CRC  : contains the checksum computed using CRC , 2 octets, checksum is calculated on Type, Num and Data
  */
 public class Tram {
+    private char type;
 
 }
