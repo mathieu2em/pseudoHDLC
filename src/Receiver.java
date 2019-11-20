@@ -1,13 +1,15 @@
 import java.net.*;
 import java.io.*;
 
-/* the receiver has to be able to:
-   1 - receive trams
-   2 - verify presence of errors
-   3 - produce and send receipts
-   4 - send REJ in case of errors
+/**
+ * the receiver has to be able to:
+ *    1 - receive trams
+ *    2 - verify presence of errors
+ *    3 - produce and send receipts
+ *    4 - send REJ in case of errors
  */
 public class Receiver {
+
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
@@ -21,7 +23,9 @@ public class Receiver {
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String greeting = in.readLine();
-        if ("hello server".equals(greeting)) {
+
+        if ("hello server".equals(greeting))
+        {
             out.println("hello client");
         }
         else {

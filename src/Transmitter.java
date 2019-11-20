@@ -7,7 +7,9 @@ import java.io.*;
    3 - handle receipts
    4 - re-send the data in case of error
  */
+
 public class Transmitter {
+
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
@@ -29,5 +31,4 @@ public class Transmitter {
         out.close();
         clientSocket.close();
     }
-
 }
