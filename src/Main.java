@@ -15,9 +15,9 @@ public class Main {
                 "[1] : start a Receiver" +
                 "[2] : start a Transmitter");
 
-        int choice = Integer.parseInt(scanner.nextLine());
+        String choice = scanner.nextLine();
 
-        if(choice == 1)
+        if(choice == "1")
         {
             System.out.println("you chose \" start a receiver \"");
             //TODO again , trying stuff
@@ -25,13 +25,17 @@ public class Main {
             server.start(6666);
             System.out.println("receiver started");
         }
-        else if (choice == 2)
+        else if (choice == "2")
         {
             System.out.println("you chose \" start a transmitter\" ");
             Transmitter client = new Transmitter();
             client.startConnection("127.0.0.1", 6666);
-            System.out.println("sending string \"hello server\"");
-            String response = client.sendMessage("hello server");
+            do {
+                System.out.println("press 1 to send a tram asking for connection and use of Go-Back-N (REJ)");
+                choice = scanner.nextLine();
+            } while(choice != "1");
+            // TODO creer une trame de demande de connection avec utilisation de Go-Back-N (REJ)
+            String response = client.sendMessage("hello server");// TODO ici envoyer avec une methode style sendFrame
             System.out.println("server responded " + response);
         }
         else {

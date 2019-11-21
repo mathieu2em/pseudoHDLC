@@ -12,18 +12,29 @@ public class Receiver {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private DataOutputStream out;
+    private DataInputStream in;
 
     // TODO this is a first try in establishing a connection point WIP from
     // https://www.baeldung.com/a-guide-to-java-sockets
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         clientSocket = serverSocket.accept();
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String greeting = in.readLine();
+        //out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new DataInputStream(clientSocket.getInputStream());
+        //in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        out = new DataOutputStream(clientSocket.getOutputStream());
 
+        //String greeting = in.readLine();
+        // Receiving data from client
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte buffer[] = new byte[1024];
+        baos.write(buffer, 0 , in.read(buffer));
+
+        byte result[] = baos.toByteArray();
+        // TODO this part is WIP ^^^^
+
+        /*
         if ("hello server".equals(greeting))
         {
             out.println("hello client");
@@ -31,6 +42,8 @@ public class Receiver {
         else {
             out.println("unrecognised greeting");
         }
+
+         */
     }
 
     public void stop() throws IOException {

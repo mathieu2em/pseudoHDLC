@@ -37,9 +37,19 @@ public class Frames {
         this.data = nextLine;
 
         throw new java.lang.UnsupportedOperationException("NO !!!");
-
     }
+
+    // constructeur pour les frames qui n'ont pas besoin de data
+    public Frames(Character type){
+        // if connection demand , num=0 to ask for Go-Back-N
+        if (type=='C'){
+            this.Num = 0b00000000; // Num= 0 means that we ask for Go-Back-N
+        }
+    }
+
     //private <type> Data;
     //private <type> CRC;
+
+    // TODO trouver une facon d'assembler correctement la tram pour l'envoi selon la structure plus haut
 
 }
