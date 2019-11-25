@@ -17,7 +17,7 @@ public class Main {
 
         String choice = scanner.nextLine();
 
-        if(choice == "1")
+        if(choice.equals("1"))
         {
             System.out.println("you chose \" start a receiver \"");
             //TODO again , trying stuff
@@ -25,18 +25,17 @@ public class Main {
             server.start(6666);
             System.out.println("receiver started");
         }
-        else if (choice == "2")
+        else if (choice.equals("2"))
         {
-            System.out.println("you chose \" start a transmitter\" ");
+            System.out.println("you chose \"start a transmitter\" ");
             Transmitter client = new Transmitter();
             client.startConnection("127.0.0.1", 6666);
             do {
                 System.out.println("press 1 to send a tram asking for connection and use of Go-Back-N (REJ)");
                 choice = scanner.nextLine();
-            } while(choice != "1");
+            } while(!choice.equals("1"));
             // TODO creer une trame de demande de connection avec utilisation de Go-Back-N (REJ)
-            String response = client.sendMessage("hello server");// TODO ici envoyer avec une methode style sendFrame
-            System.out.println("server responded " + response);
+            Frames response = client.sendFrame(new Frames('c'));
         }
         else {
             System.out.println("wrong option choice");

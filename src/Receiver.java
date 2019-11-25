@@ -1,5 +1,6 @@
 import java.net.*;
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * the receiver has to be able to:
@@ -29,10 +30,23 @@ public class Receiver {
         // Receiving data from client
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte buffer[] = new byte[1024];
+
+        
         baos.write(buffer, 0 , in.read(buffer));
 
         byte result[] = baos.toByteArray();
-        // TODO this part is WIP ^^^^
+
+        String res = Arrays.toString(result);
+        System.out.println("Recieved from client : "+res);
+
+        //echoing back to client
+        out.write(result);
+
+        System.out.println("Closing connection");
+
+        // close connection
+        clientSocket.close();
+        in.close();
 
         /*
         if ("hello server".equals(greeting))

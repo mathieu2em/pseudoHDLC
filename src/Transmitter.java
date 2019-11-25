@@ -60,10 +60,36 @@ public class Transmitter {
      */
     public Frames sendFrame(Frames frame) throws IOException {
         //TODO on devrais faire une methode qui transforme la trame en byte array
-        byte[] frameByteArray = frame.toByteArray();
+        byte[] frameByteArray = {(byte)0x00, (byte)0x01, (byte)0x00, (byte)0x10, (byte)0x00, (byte)0x01,
+                (byte)0x00, (byte)0x1F, (byte)0x60, (byte)0x1D, (byte)0xA1, (byte)0x09,
+                (byte)0x06, (byte)0x07, (byte)0x60, (byte) 0x85, (byte)0x74, (byte)0x05,
+                (byte) 0x08, (byte)0x01, (byte)0x01, (byte)0xBE, (byte)0x10, (byte)0x04,
+                (byte)0x0E, (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x06,
+                (byte)0x5F, (byte)0x1F, (byte)0x04, (byte)0x00, (byte)0x00, (byte)0x18,
+                (byte)0x1D, (byte)0xFF, (byte)0xFF};//frame.toByteArray();
+
         out.write(frameByteArray);
 
+        // we want to see printed what we send
         String req = Arrays.toString(frameByteArray);
+        //printing request to console
+        System.out.println("Sent to server : " + req);
+
+        // Receiving reply from server
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte buffer[] = new byte[1024];
+        baos.write(buffer, 0 , in.read(buffer));
+        byte result[] = baos.toByteArray();
+
+        //TODO une methode qui convertis la reponse en frame
+        //Frames response = Frames.byteToFrames(result);
+        Frames resultat = new Frames('c'); // TODO test
+
+        String res = Arrays.toString(result);
+        // printing reply to console
+        System.out.println("Recieved from server : " + res);
+
+        return resultat;
     }
 
     public void stopConnection() throws IOException {
