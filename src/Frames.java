@@ -1,6 +1,7 @@
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /* structure is : | Flag | Type | Num | Data | CRC | Flag |
    flag : 1 octet (01111110)
@@ -41,7 +42,7 @@ public class Frames {
         this.type = type;
         this.data = nextLine;
 
-        throw new java.lang.UnsupportedOperationException("NO !!!");
+
     }
 
     // constructeur pour les frames qui n'ont pas besoin de data
@@ -77,9 +78,9 @@ public class Frames {
         return intArr;
     }
 
-    // TODO trouver une facon d'assembler correctement la tram pour l'envoi selon la structure plus haut
-    public ArrayList<Byte> toByteArray(String lineOfFrame) {
-        byte[] arrayOfByte = lineOfFrame.getBytes();
+    // format the frame to convert it to byte array to send it properly through the socket
+    public byte[] formatFrameToSend() {
+        byte[] arrayOfByte = data.getBytes();
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
 
@@ -92,12 +93,58 @@ public class Frames {
             byteArrayList.add(arrayOfByte[i]);
         }
 
+        byte[] arrayCRC = new byte[arrayOfByte.length + 2];
+        arrayCRC[0] = (byte)this.type;
+        arrayCRC[1] = this.Num;
+        for(int i = 2; i<arrayCRC.length; i++){
+            arrayCRC[i] = arrayOfByte[i-2];
+        }
         //appel de la fonction computeCRC()
+        int[] data = byteArrToArr10(arrayCRC);
 
-        byteArrayList.add();
-        return arrayOfByte;
+        int[] CRCresult = divideByCRC(data);
+
+        byteArrayList.addAll(convertToByteArray(CRCresult));
+
+        byteArrayList.add(flag);
+
+        byte[] result = new byte[byteArrayList.size()];
+        for(int i=0; i<result.length; i++){
+            result[i] = byteArrayList.get(i);
+        }
+
+        return result;
     }
 
+    //TODO verifier si les bits restent dans le bon ordre
+    public ArrayList<Byte> convertToByteArray(int[] intArr){
+
+        ArrayList<Byte> byteArrayList = new ArrayList<>();
+
+        double val = 0;
+        for(int i=intArr.length-1; i>=0; i--){
+            int j = i%8;
+            if(j == 0 && i!=0){
+                byteArrayList.add((byte)val);
+                val = 0;
+            }
+            if(intArr[i] == 1){
+                val = val + Math.pow(2, j);
+            }
+        }
+
+        Collections.reverse(byteArrayList);
+
+        // convert arraylist to array
+        byte[] bytes = new byte[byteArrayList.size()];
+        for(int i=0; i<byteArrayList.size(); i++){
+            bytes[i] = byteArrayList.get(i);
+        }
+
+        return byteArrayList;
+    }
+
+    /*
     public int[] getEncodedMessage(int messageToEncode[])
     {
         int remainder[] = divideByCRC(messageToEncode);
@@ -108,7 +155,7 @@ public class Frames {
             System.out.print(remainder[i]);
         }
         //return
-    }
+    }*/
 
     public int[] divideByCRC(int messageToEncode[]) {
         int remainder[];

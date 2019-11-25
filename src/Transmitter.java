@@ -60,18 +60,13 @@ public class Transmitter {
      */
     public Frames sendFrame(Frames frame) throws IOException {
         //TODO on devrais faire une methode qui transforme la trame en byte array
-        byte[] frameByteArray = {(byte)0x00, (byte)0x01, (byte)0x00, (byte)0x10, (byte)0x00, (byte)0x01,
-                (byte)0x00, (byte)0x1F, (byte)0x60, (byte)0x1D, (byte)0xA1, (byte)0x09,
-                (byte)0x06, (byte)0x07, (byte)0x60, (byte) 0x85, (byte)0x74, (byte)0x05,
-                (byte) 0x08, (byte)0x01, (byte)0x01, (byte)0xBE, (byte)0x10, (byte)0x04,
-                (byte)0x0E, (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x06,
-                (byte)0x5F, (byte)0x1F, (byte)0x04, (byte)0x00, (byte)0x00, (byte)0x18,
-                (byte)0x1D, (byte)0xFF, (byte)0xFF};//frame.toByteArray();
 
-        out.write(frameByteArray);
+        Frames frames = new Frames("test", 'I');
+
+        out.write(frames.formatFrameToSend());
 
         // we want to see printed what we send
-        String req = Arrays.toString(frameByteArray);
+        String req = Arrays.toString(frames.formatFrameToSend());
         //printing request to console
         System.out.println("Sent to server : " + req);
 
