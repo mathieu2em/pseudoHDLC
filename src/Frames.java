@@ -1,3 +1,7 @@
+import jdk.nashorn.internal.runtime.BitVector;
+
+import java.util.ArrayList;
+
 /* structure is : | Flag | Type | Num | Data | CRC | Flag |
    flag : 1 octet (01111110)
    Type : can be I , C , A, R, F, P
@@ -8,6 +12,8 @@
 public class Frames {
 
     private byte flag = 0b01111110;
+    private BitVector RCR = new BitVector();
+    // private byte[] generator = [0b10001000000100001];
     /*
     private byte I;
     private byte C;
@@ -16,7 +22,7 @@ public class Frames {
     private byte F;
     private byte P;
     */
-    private Character type;
+    private char type;
     private String data;
     private byte Num; // TODO , il faut qu'on trouve une bonne facon de numeroter nos trames
 
@@ -50,6 +56,58 @@ public class Frames {
     //private <type> Data;
     //private <type> CRC;
 
+
+
+
     // TODO trouver une facon d'assembler correctement la tram pour l'envoi selon la structure plus haut
+    public ArrayList<Byte> toByteArray(String lineOfFrame)
+    {
+        byte[] arrayOfByte = lineOfFrame.getBytes();
+
+        ArrayList<Byte> byteArrayList = new ArrayList<>();
+
+        //here we add the flag, type and num for each frame
+        byteArrayList.add(this.flag);
+        byteArrayList.add((byte)this.type);
+        byteArrayList.add(this.Num);
+
+        for (int i = 0; i < arrayOfByte.length; i++ )
+        {
+            byteArrayList.add(arrayOfByte[i]);
+        }
+
+        //appel de la fonction computeCRC()
+
+        byteArrayList.add();
+        return arrayOfByte;
+    }
+
+    public int[] divideByCRC(int messageToEncode[], int CRC[])
+    {
+        int remainder[];
+        int data[] = new int[messageToEncode.length + CRC.length];
+        System.arraycopy(messageToEncode, 0, data, 0, messageToEncode.length);
+
+        remainder = new int[CRC.length];
+        System.arraycopy(data, 0, remainder, 0, CRC.length);
+
+        for (int i = 0; i < messageToEncode.length; )
+
+    }
+    /*public byte[] computeCRC(ArrayList<Byte> arrayListOfByte)
+    {
+        byte[] byteArray = new byte[arrayListOfByte.size()];
+        ArrayList<Boolean> encodedMessage = new ArrayList<>();
+        for (int i = 0; i < byteArray.length; i++)
+        {
+            //byteArray[i] = (byte) arrayListOfByte.get(i);
+            if (byteArray[i] != generator[i]) //XOR result is 1, add 1
+                encodedMessage.add(true);
+            else                        //XOR result is 0, add 0
+                encodedMessage.add(false);
+        }
+
+
+    }*/
 
 }
