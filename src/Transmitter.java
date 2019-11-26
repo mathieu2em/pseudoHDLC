@@ -25,7 +25,7 @@ public class Transmitter {
 
         Character frameType = 'I'; // TODO pas sure que c'est I , a reverifier ...
         while(scanner.hasNextLine()){
-            Frames frame = new Frames(scanner.nextLine(), frameType);
+            Frames frame = new Frames(frameType, scanner.nextLine());
             frameList.add(frame);
         }
 
@@ -61,7 +61,7 @@ public class Transmitter {
     public Frames sendFrame(Frames frame) throws IOException {
         //TODO on devrais faire une methode qui transforme la trame en byte array
 
-        Frames frames = new Frames("test", 'I');
+        Frames frames = new Frames('I', "test");
 
         out.write(frames.formatFrameToSend());
 

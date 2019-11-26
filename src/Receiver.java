@@ -34,6 +34,7 @@ public class Receiver {
         baos.write(buffer, 0 , in.read(buffer));
 
         byte result[] = baos.toByteArray();
+        Frames resultFrame = new Frames(result); // TODO test
 
         String res = Arrays.toString(result);
         System.out.println("Recieved from client : "+res);

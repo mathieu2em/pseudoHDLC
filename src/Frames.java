@@ -34,7 +34,7 @@ public class Frames {
     //constructor for the frame re-creation
     public Frames(){}
 
-    public Frames(String nextLine, Character type) {
+    public Frames(Character type, String nextLine) {
 
         this.type = type;
         this.data = nextLine;
@@ -60,7 +60,10 @@ public class Frames {
         // set type
         this.type = (char)frameBytes[1];
         this.Num = frameBytes[2];
-        if(this.type.);
+        if(this.type == 'I'){ // RR
+            this.data = new String(Arrays.copyOfRange(frameBytes, 3, frameBytes.length - 2));
+            System.out.println(data); // TODO for testing
+        }
     }
 
     //private <type> Data;
