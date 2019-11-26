@@ -38,7 +38,6 @@ public class Frames {
 
         this.type = type;
         this.data = nextLine;
-
     }
 
     // constructeur pour les frames qui n'ont pas besoin de data
@@ -62,7 +61,6 @@ public class Frames {
         this.Num = frameBytes[2];
         if(this.type == 'I'){ // RR
             this.data = new String(Arrays.copyOfRange(frameBytes, 3, frameBytes.length - 2));
-            System.out.println(data); // TODO for testing
         }
     }
 
@@ -106,9 +104,11 @@ public class Frames {
             byteArrayList.add(arrayOfByte[i]);
         }
 
+        // generate the byte array to modify for the crc
         byte[] arrayCRC = new byte[arrayOfByte.length + 2];
         arrayCRC[0] = (byte)this.type;
         arrayCRC[1] = this.Num;
+        // add to this byte array the bytes of the data
         for(int i = 2; i<arrayCRC.length; i++){
             arrayCRC[i] = arrayOfByte[i-2];
         }
@@ -116,8 +116,9 @@ public class Frames {
         int[] data = byteArrToArr10(arrayCRC);
 
         int[] CRCresult = divideByCRC(data);
-
-        byteArrayList.addAll(convertToByteArray(CRCresult));
+        // the CRC result must
+        ArrayList<Byte> convertedCRCResult = convertToByteArray(CRCresult);
+        System.out.println(convertedCRCResult.toString());
 
         byteArrayList.add(flag);
 
