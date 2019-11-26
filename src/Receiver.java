@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Scanner;
 
 /**
  * the receiver has to be able to:
@@ -26,12 +27,10 @@ public class Receiver {
         //in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         out = new DataOutputStream(clientSocket.getOutputStream());
 
-        //String greeting = in.readLine();
         // Receiving data from client
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte buffer[] = new byte[1024];
 
-        
+        byte buffer[] = new byte[1024];
         baos.write(buffer, 0 , in.read(buffer));
 
         byte result[] = baos.toByteArray();
@@ -42,22 +41,16 @@ public class Receiver {
         //echoing back to client
         out.write(result);
 
+        System.out.println("Press 1 to close connection if you want to");
+        String choice = "";
+        while (!choice.equals("1")){
+            choice = new Scanner(System.in).nextLine();
+        }
         System.out.println("Closing connection");
 
         // close connection
         clientSocket.close();
         in.close();
-
-        /*
-        if ("hello server".equals(greeting))
-        {
-            out.println("hello client");
-        }
-        else {
-            out.println("unrecognised greeting");
-        }
-
-         */
     }
 
     public void stop() throws IOException {
@@ -65,6 +58,18 @@ public class Receiver {
         out.close();
         clientSocket.close();
         serverSocket.close();
+    }
+
+    // returns a frame of type R => REJ and the num of the tram rejected
+    private Frames genREJ(int num){
+        Frames frames = new Frames('R', num);
+        return frames;
+    }
+
+    // returns a frame of type A => RR that confirms that Receiver received the tram number "num"
+    private Frames genRR(int num){
+        Frames frames = new Frames('A', num);
+        return frames;
     }
 
     public static void Main(String[] args) throws IOException {

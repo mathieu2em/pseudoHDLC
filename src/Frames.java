@@ -1,6 +1,7 @@
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 /* structure is : | Flag | Type | Num | Data | CRC | Flag |
@@ -14,14 +15,7 @@ public class Frames {
 
     private byte flag = 0b01111110;
     private int[] CRC = {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
-    /*
-    private byte I;
-    private byte C;
-    private byte A;
-    private byte R;
-    private byte F;
-    private byte P;
-    */
+
     private char type;
     private String data;
     private byte Num; // TODO , il faut qu'on trouve une bonne facon de numeroter nos trames
@@ -35,13 +29,15 @@ public class Frames {
     R : rejet de la trame Num et de toutes celles envoyées après (REJ)
     F : fin de la communication.
     P : trame avec P bit, équivalente à P bit.
-    TODO il faut gerer tous les types possibles dans le constructeur
     */
+
+    //constructor for the frame re-creation
+    public Frames(){}
+
     public Frames(String nextLine, Character type) {
 
         this.type = type;
         this.data = nextLine;
-
 
     }
 
@@ -51,6 +47,20 @@ public class Frames {
         if (type == 'C') {
             this.Num = 0b00000000; // Num= 0 means that we ask for Go-Back-N
         }
+    }
+
+    // constructeur pour les frames RR et REJ
+    public Frames(Character type, int num){
+        this.type = type;
+        this.Num = (byte)num;
+    }
+
+    // recreates a frame from a byteArray
+    public Frames(byte[] frameBytes){
+        // set type
+        this.type = (char)frameBytes[1];
+        this.Num = frameBytes[2];
+        if(this.type.);
     }
 
     //private <type> Data;
@@ -144,58 +154,73 @@ public class Frames {
         return byteArrayList;
     }
 
-    /*
-    public int[] getEncodedMessage(int messageToEncode[])
-    {
-        int remainder[] = divideByCRC(messageToEncode);
-        for(int i=0 ; i < messageToEncode.length ; i++) {
-            System.out.print(messageToEncode[i]);
-        }
-        for(int i=0 ; i < remainder.length-1 ; i++) {
-            System.out.print(remainder[i]);
-        }
-        //return
-    }*/
-
     public int[] divideByCRC(int messageToEncode[]) {
-        int remainder[];
 
-        int data[] = new int[messageToEncode.length + CRC.length];
-        System.arraycopy(messageToEncode, 0, data, 0, messageToEncode.length);
 
-        //array that stores the remainder. remainder's bits initially set to the data bits
-        remainder = new int[CRC.length];
-        System.arraycopy(data, 0, remainder, 0, CRC.length);
-
-        //loop continuously EXOR the bits of the remainder (data) and CRC
-        for (int i = 0; i < messageToEncode.length; i++) {
-            if (remainder[0] == 1) {
-                for (int j = 1; j < CRC.length; j++) {
-                    remainder[j - 1] = exor(remainder[j], CRC[j]);
-                }
-            } else {
-                for (int j = 1; j < CRC.length; j++) {
-                    remainder[j - 1] = exor(remainder[j], 0);
+        int tempMessageToEncode[]; // va etre le resultat mais dici la contient data
+        int r = CRC.length-1 + messageToEncode.length-CRC.length;
+        tempMessageToEncode = new int[messageToEncode.length+r-1];
+        System.arraycopy(messageToEncode,0,tempMessageToEncode,0, messageToEncode.length);
+        while(r >= 0){
+            if(tempMessageToEncode[0]==1) {
+                for (int j = 0; j < CRC.length; j++) {
+                    tempMessageToEncode[j] = exor(tempMessageToEncode[j], CRC[j]);
                 }
             }
-            remainder[CRC.length - 1] = data[i + CRC.length];
+            tempMessageToEncode = bitshift(tempMessageToEncode);
+            r--;
         }
-        return remainder;
+        return Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length-1);
+    }
+
+    private int[] bitshift(int[] ints){
+        if(ints.length==1){
+            int[] res = {0};
+            return res;
+        }
+        for(int i=0; i<ints.length-1; i++){
+            ints[i]=ints[i+1];
+        }
+        ints[ints.length-1]=0;
+        return ints;
     }
 
     //XOR operation with 2 bits given in entry
     public int exor(int a, int b) {
-      /*  if (a == b) {
-            return 0;
-        }*/
         return a^b;
     }
 
+    /*
     private int[] appendRemainderToData(int[] remainder, int[] data) {
         int[] encodedMessage = new int[data.length + remainder.length];
         System.arraycopy(data, 0, encodedMessage, 0, data.length);
         System.arraycopy(remainder, 0, encodedMessage, data.length, remainder.length);
 
         return encodedMessage;
+    }
+    */
+
+    public char getType() {
+        return type;
+    }
+
+    public void setType(char type) {
+        this.type = type;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public byte getNum() {
+        return Num;
+    }
+
+    public void setNum(byte num) {
+        Num = num;
     }
 }

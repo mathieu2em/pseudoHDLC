@@ -34,8 +34,9 @@ public class Main {
                 System.out.println("press 1 to send a tram asking for connection and use of Go-Back-N (REJ)");
                 choice = scanner.nextLine();
             } while(!choice.equals("1"));
-            // TODO creer une trame de demande de connection avec utilisation de Go-Back-N (REJ)
-            Frames response = client.sendFrame(new Frames('c'));
+            // cree une trame de demande de connection avec utilisation de Go-Back-N (REJ)
+            // donc une trame contenant pour numero => 0 et pour type => C
+            Frames response = client.sendFrame(new Frames('C'));
         }
         else {
             System.out.println("wrong option choice");
