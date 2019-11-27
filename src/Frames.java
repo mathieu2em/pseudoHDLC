@@ -18,7 +18,7 @@ public class Frames {
 
     private char type;
     private String data;
-    private byte Num; // TODO , il faut qu'on trouve une bonne facon de numeroter nos trames
+    private byte Num;
 
     /*
     there is different types of frames :
@@ -60,7 +60,7 @@ public class Frames {
         this.type = (char)frameBytes[1];
         this.Num = frameBytes[2];
         if(this.type == 'I'){ // RR
-            this.data = new String(Arrays.copyOfRange(frameBytes, 3, frameBytes.length - 2));
+            this.data = new String(Arrays.copyOfRange(frameBytes, 3, frameBytes.length - 3));
         }
     }
 
@@ -116,17 +116,18 @@ public class Frames {
         int[] data = byteArrToArr10(arrayCRC);
 
         int[] CRCresult = divideByCRC(data);
-        // the CRC result must
+        // the CRC result is added to the byteArrayList
         ArrayList<Byte> convertedCRCResult = convertToByteArray(CRCresult);
-        System.out.println(convertedCRCResult.toString());
-
+        System.out.println(convertedCRCResult.toString());// TODO test
+        byteArrayList.addAll(convertedCRCResult);
+        // the last byte flag is added
         byteArrayList.add(flag);
 
+        // we convert the arraylist into an array
         byte[] result = new byte[byteArrayList.size()];
         for(int i=0; i<result.length; i++){
             result[i] = byteArrayList.get(i);
         }
-
         return result;
     }
 
@@ -138,7 +139,7 @@ public class Frames {
         double val = 0;
         for(int i=intArr.length-1; i>=0; i--){
             int j = i%8;
-            if(j == 0 && i!=0){
+            if(j == 0 && i!=intArr.length-1){
                 byteArrayList.add((byte)val);
                 val = 0;
             }
