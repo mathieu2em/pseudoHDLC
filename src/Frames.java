@@ -54,7 +54,7 @@ public class Frames {
     }
 
     // recreates a frame from a byteArray
-    Frames(String frameString){
+    public Frames(String frameString){
         byte[] frameBytes = stringToByte(frameString);
 
         System.out.println(Arrays.toString(frameBytes));
@@ -110,11 +110,11 @@ public class Frames {
         return arr10ToString(byteArrToArr10(result));
     }
 
-    private byte[] getFrameToByteArray(){
+    public byte[] getFrameToByteArray(){
         return stringToByte(formatFrameToSend());
     }
 
-    private static int[] byteArrToArr10(byte[] bytes){
+    public static int[] byteArrToArr10(byte[] bytes){
 
         ArrayList<Integer> arrayOfBits = new ArrayList<>();
 
@@ -175,7 +175,7 @@ public class Frames {
         return byteArrayList;
     }
 
-    private int[] divideByCRC(int[] messageToEncode) {
+    public int[] divideByCRC(int[] messageToEncode) {
 
 
         int r = CRC.length-1 + messageToEncode.length-CRC.length;

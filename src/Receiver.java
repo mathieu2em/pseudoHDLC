@@ -14,9 +14,8 @@ public class Receiver {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-    private int renduOu = 0;
+    private int renduOu = 0; // NUM
 
-    Receiver(){}
 
     void start() throws IOException {
         serverSocket = new ServerSocket(6666);
@@ -43,12 +42,46 @@ public class Receiver {
             System.out.println("received a connection tram asking for Go Back End, will now send answer");
             out.println(genRR(0).formatFrameToSend());
         } else if (type == 'I'){
-            // TODO verifyDataFrame(frames); verifie le num, verifie le crc, store result dans un String global
+            verifyDataFrame(frames);
         } else if (type == 'P'){
             out.println(genRR(renduOu).formatFrameToSend());
         } else if (type == 'F'){
             stop();
         }
+    }
+
+    public void verifyDataFrame(Frames trame)
+    {
+        byte[] trameEnByteArray = trame.getFrameToByteArray();
+
+        int nombreOctetsSansLesFlags = trameEnByteArray.length - 2;
+
+        byte[] trameSansFlags = new byte[nombreOctetsSansLesFlags];
+        System.arraycopy(trameEnByteArray, 1, trameSansFlags, 0, nombreOctetsSansLesFlags);
+
+        int[] arrayIntAValider = trame.byteArrToArr10(trameSansFlags);
+
+        if (trame.divideByCRC(arrayIntAValider) != null) {
+            out.println(genREJ(renduOu).formatFrameToSend());
+            System.out.println("Sending frame REJ " + renduOu % 8 + " to client" );
+        }
+
+        else if (!verifierNumCorrespondAuCompteur(trameEnByteArray[2], (byte)renduOu))
+        {
+            out.println(genREJ(renduOu).formatFrameToSend());
+            System.out.println("Sending frame REJ " + renduOu % 8 + " to client" );
+
+        }
+        else if ( (trameEnByteArray[2] & 0b10000000) == 0b10000000)
+        {
+            out.println(genRR(renduOu).formatFrameToSend());
+            System.out.println("Sending frame RR " + renduOu % 8 + " to client" );
+        }
+        else
+            {
+                renduOu++;
+                System.out.println("Received from client frame number " + trameEnByteArray[2] + "containing : " +  new Frames(trame.formatFrameToSend()).getData() );
+            }
     }
 
     private void stop() throws IOException {
@@ -66,5 +99,13 @@ public class Receiver {
     // returns a frame of type A => RR that confirms that Receiver received the tram number "num"
     private Frames genRR(int num){
         return new Frames('A', num);
+    }
+
+    public boolean verifierNumCorrespondAuCompteur(byte num, byte compteur)
+    {
+        if (num == compteur)
+            return true;
+        else
+            return false;
     }
 }

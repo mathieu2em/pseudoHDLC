@@ -15,10 +15,9 @@ public class Tests {
         this.frame = frame;
     }
 
-
     // Methodes utilitaires
 
-    private int[] bitFlipper(int[] message) {
+    public int[] bitFlipper(int[] message) {
         if (message[0] == 1)
             message[0] = 0;
         else
@@ -26,6 +25,19 @@ public class Tests {
         return message;
     }
 
+    public boolean verifierNumCorrespondAuCompteur(byte num, byte compteur)
+    {
+        if (num == compteur)
+            return true;
+        else
+            return false;
+    }
+
+    public ArrayList<Byte[]> enleverTrameDeListePourTestTramePerdue(ArrayList<Byte[]> listeTrames)
+    {
+        listeTrames.remove(2);
+        return listeTrames;
+    }
 
     // Methode Test
 
@@ -56,38 +68,49 @@ public class Tests {
         }
 
         // Reception de trames
-        //TODO cet arraylist doit etre retourne par une methode du receveur
-        ArrayList<Frames> framesReceived = new ArrayList<>();
+        //TODO on recoit en retour un arraylist de Byte[] de la methode du receveur à terminer. déclaré ici en attendant
+        ArrayList<Byte[]> framesReceived = new ArrayList<>();
+        byte compteurDeTrames = framesReceived.get(0)[2];
 
-        for (int i = 0; i< framesReceived.size(); i++) {
-            /*byte[] frameByteArray = frame.convertFrameToByteArray(framesReceived.get(i));
+        for (int i = 0; i < framesReceived.size(); i ++)
+        {
+            for (int j = 0; j < framesReceived.get(i).length; j++) {
 
-            int numberOfBytesWithoutFlags = frameByteArray.length - 2;
+                int numberOfBytesWithoutFlags = framesReceived.get(i).length - 2;
 
-            byte[] frameWithoutFlags = new byte[numberOfBytesWithoutFlags];
-            System.arraycopy(frameByteArray, 1, frameWithoutFlags, 0, numberOfBytesWithoutFlags);
+                byte[] frameWithoutFlags = new byte[numberOfBytesWithoutFlags];
+                System.arraycopy(framesReceived, 1, frameWithoutFlags, 0, numberOfBytesWithoutFlags);
 
-            int[] intArrayFrameToCheck = frame.byteArrToArr10(frameWithoutFlags);
+                int[] intArrayFrameToCheck = frame.byteArrToArr10(frameWithoutFlags);
 
-            //TEST CAS TRAME ERRONEE
-            if (choix.equals("3")) {
-                if (i == 0) {
-                    bitFlipper(intArrayFrameToCheck);
+                //TEST CAS TRAME ERRONEE
+                if (choix.equals("3")) {
+                    if (j == 0) {
+                        bitFlipper(intArrayFrameToCheck);
+                    }
+                }
+
+                //TEST CAS TRAME PERDUE
+                if (choix.equals("2"))
+                {
+                    framesReceived = enleverTrameDeListePourTestTramePerdue(framesReceived);
+                }
+
+                if (!verifierNumCorrespondAuCompteur(framesReceived.get(i)[2], compteurDeTrames))
+                {
+                    System.out.println("La trame " + compteurDeTrames + " s'est perdue.");
+                }
+                compteurDeTrames += (byte)1;
+
+                // Diviser par le CRC
+                if (frame.divideByCRC(intArrayFrameToCheck) != null) {
+                    System.out.println("La trame " + 3 + " est erronée.");
                 }
             }
-*/
-            //TEST CAS TRAME PERDUE
-            byte compteurDeTrames = 0;
-
-
-/*
-            // Diviser par le CRC
-            if (frame.divideByCRC(intArrayFrameToCheck) != null) {
-                System.out.println("La trame" + framesReceived.get(i).getNum() + "est erronee.");
-            } else {
-                System.out.println("La trame" + framesReceived.get(i).getNum() + "ne comporte pas d'erreur.");
-            }
-*/
         }
+        System.out.println("Fin de la réception.");
+        // TODO compléter l'échange (envoyer REJ/RR)
+        // TODO si pas d'erreur, imprimer le texte reçu.
     }
 }
+
