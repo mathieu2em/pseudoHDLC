@@ -26,7 +26,7 @@ public class Transmitter {
         ArrayList<Frames> frameList = new ArrayList<>();
         Scanner scanner = new Scanner(new File(filePath));
 
-        Character frameType = 'I'; // TODO pas sure que c'est I , a reverifier ...
+        Character frameType = 'I';
         while(scanner.hasNextLine()){
             Frames frame = new Frames(frameType, scanner.nextLine());
             frameList.add(frame);
@@ -35,75 +35,40 @@ public class Transmitter {
         return frameList;
     }
 
+    // reads a file and send it
+    // TODO implement the HDLC PROTOCOL
+    void sendFile(String filePath) throws IOException {
+        ArrayList<Frames> fileFrames = readFile(filePath);
+
+        for (Frames fileFrame : fileFrames) {
+            sendFrame(fileFrame);
+        }
+    }
+
     void startConnection() throws IOException {
         clientSocket = new Socket("127.0.0.1", 6666);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        /*
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        */
-        // sends output to the socket
-        //out = new DataOutputStream(clientSocket.getOutputStream());
-        //takes input from socket
-        //in = new DataInputStream(clientSocket.getInputStream());
-
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    /*
-    public String sendMessage(String msg) throws IOException {
-        out.println(msg);
-        String resp = in.readLine();
-        return resp;
-    }
-    */
-
-    /* TODO s'assurer de la procedure pour l'instant on tente juste l'envoi d'une trame,
-        mais on pourrais en envoyer avec une methode plus complexe qui prend un ArrayList<Frames>
-        http://www.devzoneoriginal.com/2019/05/21/Java-Socket-Example-for-sending-and-recieving-byte-array/
-        this may be a good way
-*/
-
-    Frames sendFrame() throws IOException {
-        //TODO on devrais faire une methode qui transforme la trame en byte array
-
-        Frames frames = new Frames('I', "test");
+    Frames sendFrame(Frames frames) throws IOException {
         String stringFrame = frames.formatFrameToSend();
 
-        //byte[] frameToSend = frames.formatFrameToSend();
+        // send the frame as a string
         out.println(stringFrame);
-        System.out.println(stringFrame);
 
         //printing request to console
         System.out.println("Sent to server : " + stringFrame);
-        System.out.println(frames.getData());
+        System.out.println("containing : " + frames.getData());
 
         String result = in.readLine();
 
-        String res = result;
-        // printing reply to console
-        System.out.println("Recieved from server : " + res);
-
-        out.println(frames.formatFrameToSend());
-        //out.flush();
-        // we want to see printed what we send
-        //printing request to console
-        System.out.println("Sent to server : " + stringFrame);
-
-        // Receiving reply from server
-        result = in.readLine();
-
-        //TODO une methode qui convertis la reponse en frame
-        //Frames response = Frames.byteToFrames(result);
-        //resultat = new Frames('c'); // TODO test
-
         // printing reply to console
         System.out.println("Recieved from server : " + result);
+        Frames frames1 = new Frames(result);
+        System.out.println("of Type : " + frames1.getType());
 
-        return new Frames(result);
+        return frames1;
     }
 
 

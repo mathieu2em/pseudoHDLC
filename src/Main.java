@@ -36,15 +36,17 @@ public class Main {
 
         // wait that user click 1 to sent a tram asking for connection
         queryCommand("send a tram asking for connection and use of Go-Back-N (REJ)", "1");
+        Frames frames = new Frames('C');
 
-        // creates frame containing Num => 0 (for Go-Back-N) and Type => C
-        Frames response = client.sendFrame();//new Frames('C'));
+        // creates frame containing Num => 0 (for Go-Back-N) and Type => C sends it and wait for answer
+        Frames response = client.sendFrame(frames);//new Frames('C'));
+        // the received frame should be of type ?? containing ???
+        // TODO
     }
 
     private static void queryCommand(String query, String approvementString){
         Scanner scanner = new Scanner(System.in);
         String choice;
-
         do {
 
             System.out.println("press " + approvementString + " and press ENTER to " + query);
