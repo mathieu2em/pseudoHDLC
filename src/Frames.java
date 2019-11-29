@@ -69,28 +69,6 @@ public class Frames {
     //private <type> Data;
     //private <type> CRC;
 
-    private static int[] byteArrToArr10(byte[] bytes){
-
-        ArrayList<Integer> arrayOfBits = new ArrayList<>();
-
-        // for each array of bytes store every individual byte in the array list in the correct order
-        for(int i=bytes.length-1; i>=0; i--){
-            int bits = bytes[i];
-
-            for(int j=0; j<8; j++){
-                arrayOfBits.add(bits&1); // for example 1010110101 & 000000001 = 1 else 0
-                bits >>= 1; // now evaluate next one
-            }
-        }
-        // convert the arrayList of Int to int array
-        int[] intArr = new int[arrayOfBits.size()];
-        for(int i=0; i<arrayOfBits.size(); i++){
-            intArr[i] = arrayOfBits.get(arrayOfBits.size()-i-1);
-        }
-
-        return intArr;
-    }
-
     // format the frame to convert it to byte array to send it properly through the socket
     String formatFrameToSend() {
         byte[] arrayOfByte = data.getBytes();
@@ -130,6 +108,32 @@ public class Frames {
         }
         System.out.println("formatted" + Arrays.toString(result));
         return arr10ToString(byteArrToArr10(result));
+    }
+
+    private byte[] getFrameToByte(){
+        return stringToByte(formatFrameToSend());
+    }
+
+    private static int[] byteArrToArr10(byte[] bytes){
+
+        ArrayList<Integer> arrayOfBits = new ArrayList<>();
+
+        // for each array of bytes store every individual byte in the array list in the correct order
+        for(int i=bytes.length-1; i>=0; i--){
+            int bits = bytes[i];
+
+            for(int j=0; j<8; j++){
+                arrayOfBits.add(bits&1); // for example 1010110101 & 000000001 = 1 else 0
+                bits >>= 1; // now evaluate next one
+            }
+        }
+        // convert the arrayList of Int to int array
+        int[] intArr = new int[arrayOfBits.size()];
+        for(int i=0; i<arrayOfBits.size(); i++){
+            intArr[i] = arrayOfBits.get(arrayOfBits.size()-i-1);
+        }
+
+        return intArr;
     }
 
     private String arr10ToString(int[] fram10){
