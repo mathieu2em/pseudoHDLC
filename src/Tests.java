@@ -41,12 +41,13 @@ public class Tests {
 
     // Methode Test
 
-    public void Test(String filePath) throws IOException {
+    public void Test(String filePath) throws IOException
+    {
         scanner = new Scanner(new File(filePath));
         System.out.println("======== Bienvenue dans la section de tests. Quel cas voulez-vous tester? ==========\n" +
                 "[1] : transmission sans erreur" +
                 "[2] : transmission avec perte" +
-                "[3] : transmission avec erreurs");
+                "[3] : transmission avec erreurs"); //TODO rajouter 4e cas pbit
         String choix = scanner.nextLine();
 
         // Connexions
@@ -59,7 +60,8 @@ public class Tests {
         client.startConnection();
         System.out.println("Transmitteur prêt");
 
-        // Envoi des trames
+       // CETTE PARTIE N'EST PLUS NÉCESSAIRE COMME ON FUSIONNE LES TESTS AVEC LE MAIN
+      /*  // Envoi des trames
         ArrayList<Frames> frameListForTests = client.readFile(filePath);
 
         for (int i = 0; i< frameListForTests.size(); i++)
@@ -68,7 +70,6 @@ public class Tests {
         }
 
         // Reception de trames
-        //TODO on recoit en retour un arraylist de Byte[] de la methode du receveur à terminer. déclaré ici en attendant
         ArrayList<Byte[]> framesReceived = new ArrayList<>();
         byte compteurDeTrames = framesReceived.get(0)[2];
 
@@ -89,8 +90,9 @@ public class Tests {
                         bitFlipper(intArrayFrameToCheck);
                     }
                 }
-
-                //TEST CAS TRAME PERDUE
+*/
+                //TODO C'EST CETTE PARTIE QU'IL RESTE À INCORPORER DANS LE MAIN POUR LES DIFFÉRENTS CAS DE TESTS
+                /*//TEST CAS TRAME PERDUE
                 if (choix.equals("2"))
                 {
                     framesReceived = enleverTrameDeListePourTestTramePerdue(framesReceived);
@@ -105,12 +107,10 @@ public class Tests {
                 // Diviser par le CRC
                 if (frame.divideByCRC(intArrayFrameToCheck) != null) {
                     System.out.println("La trame " + 3 + " est erronée.");
-                }
+                }*/
             }
         }
-        System.out.println("Fin de la réception.");
-        // TODO compléter l'échange (envoyer REJ/RR)
-        // TODO si pas d'erreur, imprimer le texte reçu.
-    }
-}
+
+
+
 

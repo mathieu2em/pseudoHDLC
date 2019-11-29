@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.NodeChangeEvent;
 
 /* the transmitter has to :
    1 - read file's data
@@ -39,7 +40,7 @@ public class Transmitter {
 
     // reads a file and send it
     // TODO implement the HDLC PROTOCOL
-    void sendFile(String filePath) throws IOException, InterruptedException {
+/*    void sendFile(String filePath) throws IOException, InterruptedException {
         ArrayList<Frames> fileFrames = readFile(filePath); // the frames to send
         int framesSent = 0; // how many frames have been sent
         int framesReceived = 0; // how many frames have been received from server and confirmed
@@ -90,6 +91,54 @@ public class Transmitter {
                 framesSent++;
             }
             // on rajoute les framesSent - num derniers elements
+        }
+    }*/
+
+    public void sendFile(String filePath) throws IOException, InterruptedException {
+        ArrayList<Frames> trames = readFile(filePath); // the frames to send
+        int peutEnvoyer = 7;
+        int nombreTramesEnvoyees = 0;
+
+        while (nombreTramesEnvoyees <= trames.size())
+        {
+            for (int i = nombreTramesEnvoyees; i < trames.size(); i ++)
+            {
+                if (peutEnvoyer >= 0)
+                {
+                    sendFrame(trames.get(i));
+                    System.out.println(
+                            "Envoi de la trame " + ((int)trames.get(i).getNum()% 7) + " comportant le contenu : " + trames.get(i).getData() );
+                    peutEnvoyer--;
+                    nombreTramesEnvoyees ++;
+                }
+            }
+
+            // il n'y a pas de réponse du receveur
+            if (!in.ready())
+            {
+                // attend 3 sec et envoit pbit
+                TimeUnit.SECONDS.sleep(3);
+                sendFrame(new Frames('P', 0));
+            }
+
+            // s'il y a une reponse du receveur
+            if (in.ready())
+            {
+                Frames reponseDuReceveur = new Frames(in.readLine());
+                char typeDeReponse = reponseDuReceveur.getType();
+
+                if (typeDeReponse == 'A') //réponse RR qui est du # de la dernière trame reçue + 1
+                {
+                    peutEnvoyer = 7;
+                }
+
+                else // reponse REJ
+                {
+                    //ramener nombre de trames envoyées à la dernière trame non reçue
+                    int numDeLaTrameARenvoyer = (int)reponseDuReceveur.getNum();
+                    nombreTramesEnvoyees = numDeLaTrameARenvoyer;
+                }
+            }
         }
     }
 
