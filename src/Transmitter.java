@@ -1,7 +1,6 @@
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 /* the transmitter has to :
@@ -14,14 +13,18 @@ import java.util.Scanner;
 public class Transmitter {
 
     private Socket clientSocket;
-    private DataOutputStream out;
-    private DataInputStream in;
-    private Scanner scanner;
+    //private DataOutputStream out;
+    //private DataInputStream in;
+    private PrintWriter out;
+    private BufferedReader in;
 
-    public ArrayList<Frames> readFile(String filePath) throws FileNotFoundException {
+    Transmitter() {
+    }
+
+    ArrayList<Frames> readFile(String filePath) throws FileNotFoundException {
 
         ArrayList<Frames> frameList = new ArrayList<>();
-        scanner = new Scanner(new File(filePath));
+        Scanner scanner = new Scanner(new File(filePath));
 
         Character frameType = 'I'; // TODO pas sure que c'est I , a reverifier ...
         while(scanner.hasNextLine()){
@@ -32,17 +35,22 @@ public class Transmitter {
         return frameList;
     }
 
-    public void startConnection(String ip, int port) throws IOException {
-        clientSocket = new Socket(ip, port);
+    void startConnection() throws IOException {
+        clientSocket = new Socket("127.0.0.1", 6666);
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
         /*
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         */
         // sends output to the socket
-        out = new DataOutputStream(clientSocket.getOutputStream());
+        //out = new DataOutputStream(clientSocket.getOutputStream());
         //takes input from socket
-        in = new DataInputStream(clientSocket.getInputStream());
+        //in = new DataInputStream(clientSocket.getInputStream());
+
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
     /*
@@ -57,35 +65,47 @@ public class Transmitter {
         mais on pourrais en envoyer avec une methode plus complexe qui prend un ArrayList<Frames>
         http://www.devzoneoriginal.com/2019/05/21/Java-Socket-Example-for-sending-and-recieving-byte-array/
         this may be a good way
-     */
-    public Frames sendFrame(Frames frame) throws IOException {
+*/
+
+    Frames sendFrame() throws IOException {
         //TODO on devrais faire une methode qui transforme la trame en byte array
 
         Frames frames = new Frames('I', "test");
+        String stringFrame = frames.formatFrameToSend();
 
-        out.write(frames.formatFrameToSend());
+        //byte[] frameToSend = frames.formatFrameToSend();
+        out.println(stringFrame);
+        System.out.println(stringFrame);
 
-        // we want to see printed what we send
-        String req = Arrays.toString(frames.formatFrameToSend());
         //printing request to console
-        System.out.println("Sent to server : " + req);
+        System.out.println("Sent to server : " + stringFrame);
+        System.out.println(frames.getData());
 
-        // Receiving reply from server
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte buffer[] = new byte[1024];
-        baos.write(buffer, 0 , in.read(buffer));
-        byte result[] = baos.toByteArray();
+        String result = in.readLine();
 
-        //TODO une methode qui convertis la reponse en frame
-        //Frames response = Frames.byteToFrames(result);
-        Frames resultat = new Frames('c'); // TODO test
-
-        String res = Arrays.toString(result);
+        String res = result;
         // printing reply to console
         System.out.println("Recieved from server : " + res);
 
-        return resultat;
+        out.println(frames.formatFrameToSend());
+        //out.flush();
+        // we want to see printed what we send
+        //printing request to console
+        System.out.println("Sent to server : " + stringFrame);
+
+        // Receiving reply from server
+        result = in.readLine();
+
+        //TODO une methode qui convertis la reponse en frame
+        //Frames response = Frames.byteToFrames(result);
+        //resultat = new Frames('c'); // TODO test
+
+        // printing reply to console
+        System.out.println("Recieved from server : " + result);
+
+        return new Frames(result);
     }
+
 
     public void stopConnection() throws IOException {
         in.close();

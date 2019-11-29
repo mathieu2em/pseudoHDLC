@@ -1,5 +1,4 @@
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +33,7 @@ public class Frames {
     //constructor for the frame re-creation
     public Frames(){}
 
-    public Frames(Character type, String nextLine) {
+    Frames(Character type, String nextLine) {
 
         this.type = type;
         this.data = nextLine;
@@ -49,13 +48,16 @@ public class Frames {
     }
 
     // constructeur pour les frames RR et REJ
-    public Frames(Character type, int num){
+    Frames(Character type, int num){
         this.type = type;
         this.Num = (byte)num;
     }
 
     // recreates a frame from a byteArray
-    public Frames(byte[] frameBytes){
+    Frames(String frameString){
+        byte[] frameBytes = stringToByte(frameString);
+
+        System.out.println(Arrays.toString(frameBytes));
         // set type
         this.type = (char)frameBytes[1];
         this.Num = frameBytes[2];
@@ -67,9 +69,9 @@ public class Frames {
     //private <type> Data;
     //private <type> CRC;
 
-    public static int[] byteArrToArr10(byte[] bytes){
+    private static int[] byteArrToArr10(byte[] bytes){
 
-        ArrayList<Integer> arrayOfBits = new ArrayList<Integer>();
+        ArrayList<Integer> arrayOfBits = new ArrayList<>();
 
         // for each array of bytes store every individual byte in the array list in the correct order
         for(int i=bytes.length-1; i>=0; i--){
@@ -90,7 +92,7 @@ public class Frames {
     }
 
     // format the frame to convert it to byte array to send it properly through the socket
-    public byte[] formatFrameToSend() {
+    String formatFrameToSend() {
         byte[] arrayOfByte = data.getBytes();
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
@@ -100,8 +102,8 @@ public class Frames {
         byteArrayList.add((byte) this.type);
         byteArrayList.add(this.Num);
 
-        for (int i = 0; i < arrayOfByte.length; i++) {
-            byteArrayList.add(arrayOfByte[i]);
+        for (byte b : arrayOfByte) {
+            byteArrayList.add(b);
         }
 
         // generate the byte array to modify for the crc
@@ -109,15 +111,13 @@ public class Frames {
         arrayCRC[0] = (byte)this.type;
         arrayCRC[1] = this.Num;
         // add to this byte array the bytes of the data
-        for(int i = 2; i<arrayCRC.length; i++){
-            arrayCRC[i] = arrayOfByte[i-2];
-        }
+        System.arraycopy(arrayOfByte, 0, arrayCRC, 2, arrayCRC.length - 2);
         //appel de la fonction computeCRC()
         int[] data = byteArrToArr10(arrayCRC);
 
         int[] CRCresult = divideByCRC(data);
         // the CRC result is added to the byteArrayList
-        ArrayList<Byte> convertedCRCResult = convertToByteArray(CRCresult);
+        ArrayList<Byte> convertedCRCResult = convertToByteArrayList(CRCresult);
         System.out.println(convertedCRCResult.toString());// TODO test
         byteArrayList.addAll(convertedCRCResult);
         // the last byte flag is added
@@ -128,11 +128,29 @@ public class Frames {
         for(int i=0; i<result.length; i++){
             result[i] = byteArrayList.get(i);
         }
+        System.out.println("formatted" + Arrays.toString(result));
+        return arr10ToString(byteArrToArr10(result));
+    }
+
+    private String arr10ToString(int[] fram10){
+        StringBuilder result = new StringBuilder();
+        for (int value : fram10) {
+            result.append(value);
+        }
+        return result.toString();
+    }
+
+    private byte[] stringToByte(String intArr){
+        byte[] result = new byte[intArr.length()/8];
+        for(int i = 0; i<intArr.length(); i+=8){
+            long la = Long.parseLong(intArr.substring(i, i+8), 2);
+            result[i/8] = (byte)la;
+        }
         return result;
     }
 
     //TODO verifier si les bits restent dans le bon ordre
-    public ArrayList<Byte> convertToByteArray(int[] intArr){
+    private ArrayList<Byte> convertToByteArrayList(int[] intArr){
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
 
@@ -150,26 +168,20 @@ public class Frames {
 
         Collections.reverse(byteArrayList);
 
-        // convert arraylist to array
-        byte[] bytes = new byte[byteArrayList.size()];
-        for(int i=0; i<byteArrayList.size(); i++){
-            bytes[i] = byteArrayList.get(i);
-        }
-
         return byteArrayList;
     }
 
-    public int[] divideByCRC(int messageToEncode[]) {
+    private int[] divideByCRC(int[] messageToEncode) {
 
 
-        int tempMessageToEncode[]; // va etre le resultat mais dici la contient data
         int r = CRC.length-1 + messageToEncode.length-CRC.length;
-        tempMessageToEncode = new int[messageToEncode.length+r-1];
+        // va etre le resultat mais dici la contient data
+        int[] tempMessageToEncode = new int[messageToEncode.length + r - 1];
         System.arraycopy(messageToEncode,0,tempMessageToEncode,0, messageToEncode.length);
         while(r >= 0){
             if(tempMessageToEncode[0]==1) {
                 for (int j = 0; j < CRC.length; j++) {
-                    tempMessageToEncode[j] = exor(tempMessageToEncode[j], CRC[j]);
+                    tempMessageToEncode[j] = xor(tempMessageToEncode[j], CRC[j]);
                 }
             }
             tempMessageToEncode = bitshift(tempMessageToEncode);
@@ -180,18 +192,15 @@ public class Frames {
 
     private int[] bitshift(int[] ints){
         if(ints.length==1){
-            int[] res = {0};
-            return res;
+            return new int[]{0};
         }
-        for(int i=0; i<ints.length-1; i++){
-            ints[i]=ints[i+1];
-        }
+        if (ints.length - 1 >= 0) System.arraycopy(ints, 1, ints, 0, ints.length - 1);
         ints[ints.length-1]=0;
         return ints;
     }
 
     //XOR operation with 2 bits given in entry
-    public int exor(int a, int b) {
+    private int xor(int a, int b) {
         return a^b;
     }
 
@@ -213,7 +222,7 @@ public class Frames {
         this.type = type;
     }
 
-    public String getData() {
+    String getData() {
         return data;
     }
 

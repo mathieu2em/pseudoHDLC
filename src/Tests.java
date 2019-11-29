@@ -40,11 +40,11 @@ public class Tests {
         // Connexions
         System.out.println("\n ======== Envoi des trames ========");
         Receiver server = new Receiver();
-        server.start(6666);
+        server.start();
         System.out.println("Receveur prêt");
 
         Transmitter client = new Transmitter();
-        client.startConnection("127.0.0.1", 6666);
+        client.startConnection();
         System.out.println("Transmitteur prêt");
 
         // Envoi des trames
@@ -52,7 +52,7 @@ public class Tests {
 
         for (int i = 0; i< frameListForTests.size(); i++)
         {
-            client.sendFrame(frameListForTests.get(i));
+            //client.sendFrame(frameListForTests.get(i));
         }
 
         // Reception de trames
