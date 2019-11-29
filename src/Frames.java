@@ -33,14 +33,15 @@ public class Frames {
     //constructor for the frame re-creation
     public Frames(){}
 
-    Frames(Character type, String nextLine) {
+    Frames(Character type, String nextLine, int nbr) {
 
         this.type = type;
         this.data = nextLine;
+        this.Num = (byte)nbr;
     }
 
     // constructeur pour les frames qui n'ont pas besoin de data
-    public Frames(Character type) {
+    Frames(Character type) {
         // if connection demand , num=0 to ask for Go-Back-N
         if (type == 'C') {
             this.Num = 0b00000000; // Num= 0 means that we ask for Go-Back-N

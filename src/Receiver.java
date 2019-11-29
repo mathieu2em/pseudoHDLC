@@ -14,7 +14,8 @@ public class Receiver {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-    private int renduOu = 0; // NUM
+    private int renduOu = 0;
+    private int whenSend = 8;
 
 
     void start() throws IOException {
@@ -30,13 +31,16 @@ public class Receiver {
         while ((inputLine = in.readLine()) != null) {
             frame = new Frames(inputLine);
             System.out.println(frame.getData());
-            System.out.println("received from client" + inputLine + " " + frame.getData());
+            System.out.print("received from client" + inputLine);
+
+            if(frame.getType() == 'I') System.out.println(" " + frame.getData());
+            else System.out.println(" connection demand");
+
             processFrame(frame);
-            //out.println(inputLine);
         }
     }
 
-    public void processFrame(Frames frames) throws IOException {
+    private void processFrame(Frames frames) throws IOException {
         char type = frames.getType();
         if (type == 'C'){
             System.out.println("received a connection tram asking for Go Back End, will now send answer");
