@@ -110,7 +110,7 @@ public class Frames {
         return arr10ToString(byteArrToArr10(result));
     }
 
-    private byte[] getFrameToByte(){
+    private byte[] getFrameToByteArray(){
         return stringToByte(formatFrameToSend());
     }
 

@@ -14,6 +14,7 @@ public class Receiver {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+    private int renduOu = 0;
 
     Receiver(){}
 
@@ -28,29 +29,29 @@ public class Receiver {
         String inputLine;
         Frames frame;
         while ((inputLine = in.readLine()) != null) {
-            if (".".equals(inputLine)) {
-                out.println("good bye");
-                break;
-            }
             frame = new Frames(inputLine);
             System.out.println(frame.getData());
-
             System.out.println("received from client" + inputLine + " " + frame.getData());
-            out.println(inputLine);
+            processFrame(frame);
+            //out.println(inputLine);
         }
     }
 
-    public void processFrame(Frames frames){
+    public void processFrame(Frames frames) throws IOException {
         char type = frames.getType();
         if (type == 'C'){
             System.out.println("received a connection tram asking for Go Back End, will now send answer");
             out.println(genRR(0).formatFrameToSend());
         } else if (type == 'I'){
             // TODO verifyDataFrame(frames); verifie le num, verifie le crc, store result dans un String global
-        } else if (type == 'P');
+        } else if (type == 'P'){
+            out.println(genRR(renduOu).formatFrameToSend());
+        } else if (type == 'F'){
+            stop();
+        }
     }
 
-    public void stop() throws IOException {
+    private void stop() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
