@@ -33,11 +33,6 @@ public class Tests {
             return false;
     }
 
-    public ArrayList<Byte[]> enleverTrameDeListePourTestTramePerdue(ArrayList<Byte[]> listeTrames)
-    {
-        listeTrames.remove(6);
-        return listeTrames;
-    }
 
     // Methode Test
 

@@ -11,17 +11,13 @@ import java.util.prefs.NodeChangeEvent;
    3 - handle receipts
    4 - re-send the data in case of error
 */
-
 public class Transmitter {
 
     private Socket clientSocket;
-    //private DataOutputStream out;
-    //private DataInputStream in;
     private PrintWriter out;
     private BufferedReader in;
 
-    Transmitter() {
-    }
+    Transmitter() {}
 
     ArrayList<Frames> readFile(String filePath) throws FileNotFoundException {
 
@@ -96,10 +92,10 @@ public class Transmitter {
 
     public void sendFile(String filePath) throws IOException, InterruptedException {
         ArrayList<Frames> trames = readFile(filePath); // the frames to send
-        int peutEnvoyer = 7;
-        int nombreTramesEnvoyees = 0;
+        int peutEnvoyer = 7; // nbr de trames qu'on peut envoyer avant d'attendre retour
+        int nombreTramesEnvoyees = 0; // nbr de trames dont on a recu la confirmation de reception
 
-        while (nombreTramesEnvoyees <= trames.size())
+        while (nombreTramesEnvoyees <= trames.size()) // **
         {
             for (int i = nombreTramesEnvoyees; i < trames.size(); i++)
             {
