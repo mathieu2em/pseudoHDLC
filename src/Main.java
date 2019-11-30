@@ -24,7 +24,7 @@ public class Main {
 
     private static void receiverProtocol() throws IOException {
         System.out.println("you chose \" start a receiver \"");
-        Receiver server = new Receiver();
+        Receveur server = new Receveur();
         server.start();
         System.out.println("receiver started");
         server.listen();
@@ -32,63 +32,66 @@ public class Main {
 
     private static void transmitterProtocol(Scanner scanner) throws IOException, InterruptedException {
         System.out.println("you chose \"start a transmitter\" ");
-        Transmitter client = new Transmitter();
-        ArrayList<Frames> framesToSend;
+        Transmetteur client = new Transmetteur();
+        ArrayList<Trame> trameToSend;
 
         client.startConnection();
 
         // wait that user click 1 to sent a tram asking for connection
         queryCommand("send a tram asking for connection and use of Go-Back-N (REJ)", "1");
-        Frames frame = new Frames('C');
+        Trame frame = new Trame('C');
         client.sendFrame(frame);
 
         // creates frame containing Num => 0 (for Go-Back-N) and Type => C sends it and wait for answer
-        Frames result = new Frames(client.in.readLine());//new Frames('C'));
+        Trame result = new Trame(client.in.readLine());//new Frames('C'));
 
-        if(result.getType() == 'A'){
+        if (result.getType() == 'A') {
             System.out.println("server accepted connection with Go-Back-N by sending back RR with num 0");
         }
+        String choix = "";
+        while (!choix.equals("1")) {
+            System.out.println("========== Bienvenue dans la section de tests. Quel cas voulez-vous tester? ==========\n" +
+                    "[1] : transmission sans erreur\n" +
+                    "[2] : transmission avec trame perdue\n" +
+                    "[3] : transmission avec erreur CRC\n" +
+                    "[4] : transmission avec Pbit");
+            choix = scanner.nextLine();
+            //TODO C'EST CETTE PARTIE QU'IL RESTE À INCORPORER DANS LE MAIN POUR LES DIFFÉRENTS CAS DE TESTS
+            //TEST CAS TRAME PERDUE
+            if (choix.equals("1")) {
+                System.out.println("nom du fichier?");
+                String filename = scanner.nextLine();
+                ArrayList<Trame> trames = client.readFile(filename);
 
-        System.out.println("========== Bienvenue dans la section de tests. Quel cas voulez-vous tester? ==========\n" +
-                "[1] : transmission sans erreur\n" +
-                "[2] : transmission avec trame perdue\n" +
-                "[3] : transmission avec erreur CRC\n" +
-                "[4] : transmission avec Pbit");
-        String choix = scanner.nextLine();
-        
-        //TODO C'EST CETTE PARTIE QU'IL RESTE À INCORPORER DANS LE MAIN POUR LES DIFFÉRENTS CAS DE TESTS
-        //TEST CAS TRAME PERDUE
-        if (choix.equals("1")) {
-            System.out.println("nom du fichier?");
-            String filename = scanner.nextLine();
-            ArrayList<Frames> trames = client.readFile(filename);
+                client.sendFile(trames, 0);
+            } else if (choix.equals("2")) {
+                System.out.println("nom du fichier?");
+                String filename = scanner.nextLine();
 
-            client.sendFile(trames, 0);
-        }
-        else if (choix.equals("2")) {
-            System.out.println("nom du fichier?");
-            String filename = scanner.nextLine();
+                trameToSend = client.readFile(filename);
 
-            framesToSend = enleverTrameDeListePourTestTramePerdue(client.readFile(filename));
+                client.sendFile(trameToSend, 2);
+            }
+            //TEST CAS TRAME ERRONEE
+            else if (choix.equals("3")) {
+                System.out.println("Nom du fichier?");
+                String filename = scanner.nextLine();
 
-            client.sendFile(framesToSend, 0);
-        }
-        //TEST CAS TRAME ERRONEE
-        else if (choix.equals("3")) {
-            System.out.println("Nom du fichier?");
-            String filename = scanner.nextLine();
+                trameToSend = client.readFile((filename));
 
-            framesToSend = client.readFile((filename));
+                client.sendFile(trameToSend, 3);
+            } else if (choix.equals("4")) {
+                System.out.println("Nom du fichier?");
+                String filename = scanner.nextLine();
 
-            client.sendFileWithBadCRC(framesToSend, 6);
-        }
-        else if (choix.equals("4")){
-            System.out.println("Nom du fichier?");
-            String filename = scanner.nextLine();
+                trameToSend = client.readFile((filename));
 
-            framesToSend = client.readFile((filename));
-
-            client.sendFile(framesToSend, 4);
+                client.sendFile(trameToSend, 4);
+            }
+            System.out.println(" pour quitter [1]\n" +
+                    "pour continuer [2]");
+            client.out.println("next");
+            choix = scanner.nextLine();
         }
     }
 
@@ -101,11 +104,6 @@ public class Main {
             choice = scanner.nextLine();
 
         } while(!choice.equals(approvementString));
-    }
-
-    private static ArrayList<Frames> enleverTrameDeListePourTestTramePerdue(ArrayList<Frames> listeTrames){
-        listeTrames.remove(6);
-        return listeTrames;
     }
 
     private static String bitFlipper(String frameString, int pos) {
