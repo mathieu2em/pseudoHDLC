@@ -56,8 +56,9 @@ public class Main {
         if (choix.equals("1")) {
             System.out.println("nom du fichier?");
             String filename = scanner.nextLine();
+            ArrayList<Frames> trames = client.readFile(filename);
 
-            client.sendFile(filename);
+            client.sendFile(trames);
         }
         else if (choix.equals("2")) {
             System.out.println("nom du fichier?");

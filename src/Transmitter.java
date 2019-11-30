@@ -90,8 +90,7 @@ public class Transmitter {
         }
     }*/
 
-    public void sendFile(String filePath) throws IOException, InterruptedException {
-        ArrayList<Frames> trames = readFile(filePath); // the frames to send
+    public void sendFile(ArrayList<Frames> trames) throws IOException, InterruptedException {
         int peutEnvoyer = 7; // nbr de trames qu'on peut envoyer avant d'attendre retour
         int nombreTramesEnvoyees = 0; // nbr de trames dont on a recu la confirmation de reception
 
@@ -162,6 +161,17 @@ public class Transmitter {
         System.out.println("of Type : " + frames1.getType());
 
         return frames1;
+    }
+
+    public String bitStuff(String frameString){
+        int counter = 0;
+        for(int i = 0; i<frameString.length(); i++){
+            if(frameString.charAt(i)=='1') counter++;
+            else if(frameString.charAt(i)==0){
+                //if(counter>=5) frameString.
+            }
+        }
+        return "";
     }
 
 
