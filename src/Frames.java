@@ -209,16 +209,6 @@ public class Frames {
         return a^b;
     }
 
-    /*
-    private int[] appendRemainderToData(int[] remainder, int[] data) {
-        int[] encodedMessage = new int[data.length + remainder.length];
-        System.arraycopy(data, 0, encodedMessage, 0, data.length);
-        System.arraycopy(remainder, 0, encodedMessage, data.length, remainder.length);
-
-        return encodedMessage;
-    }
-    */
-
     public char getType() {
         return type;
     }
