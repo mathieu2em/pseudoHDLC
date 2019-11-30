@@ -1,4 +1,5 @@
 import java.io.*;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -65,12 +66,26 @@ public class Main {
             String filename = scanner.nextLine();
 
             framesReceived = enleverTrameDeListePourTestTramePerdue(client.readFile(filename));
+
+            client.sendFile(framesReceived);
         }
         //TEST CAS TRAME ERRONEE
         else if (choix.equals("3")) {
-            if (j == 0) {
-                bitFlipper(intArrayFrameToCheck);
-            }
+            System.out.println("Nom du fichier?");
+            String filename = scanner.nextLine();
+
+            framesReceived = client.readFile((filename));
+            Frames trameAModifier = framesReceived.get(6);
+
+            //premier bit 0
+            if ((octetAModifierDeLaSeptiemeTrame & 0b10000000) == 1)
+                 octetModifie = (byte)(octetAModifierDeLaSeptiemeTrame & 0b01111111);
+
+            else
+                 octetModifie = (byte)(octetAModifierDeLaSeptiemeTrame & 0b11111111);
+
+
+
         }
         if (!verifierNumCorrespondAuCompteur(framesReceived.get(i)[2], compteurDeTrames))
             {
@@ -99,4 +114,11 @@ public class Main {
         listeTrames.remove(6);
         return listeTrames;
     }
+
+    private static int[] bitFlipper(int[] message) {
+        if (message[0] == 1)
+            message[0] = 0;
+        else
+            message[0] = 1;
+        return message;
 }
