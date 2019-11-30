@@ -10,7 +10,7 @@ import java.util.Collections;
    Data : variable size , used to carry data, if receipt tram : size = null , size calculated by detecting flags
    CRC  : contains the checksum computed using CRC , 2 octets, checksum is calculated on Type, Num and Data
  */
-public class Frames {
+class Trame {
 
     private byte flag = 0b01111110;
     private static int[] CRC = {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
@@ -31,9 +31,7 @@ public class Frames {
     */
 
     //constructor for the frame re-creation
-    public Frames(){}
-
-    Frames(Character type, String nextLine, int nbr) {
+    Trame(Character type, String nextLine, int nbr) {
 
         this.type = type;
         this.data = nextLine;
@@ -41,7 +39,7 @@ public class Frames {
     }
 
     // constructeur pour les frames qui n'ont pas besoin de data
-    Frames(char type) {
+    Trame(char type) {
         this.type = type;
         // if connection demand , num=0 to ask for Go-Back-N
         if (type == 'C') {
@@ -50,16 +48,15 @@ public class Frames {
     }
 
     // constructeur pour les frames RR et REJ
-    Frames(char type, int num){
+    Trame(char type, int num){
         this.type = type;
         this.Num = (byte)num;
     }
 
     // recreates a frame from a byteArray
-    Frames(String frameString){
+    Trame(String frameString){
         byte[] frameBytes = stringToByte(frameString);
 
-        // System.out.println(Arrays.toString(frameBytes)); TODO test
         // set type
         this.type = (char)frameBytes[1];
         this.Num = frameBytes[2];
@@ -112,7 +109,7 @@ public class Frames {
         int[] CRCresult = divideByCRC(dataCRC);
         // the CRC result is added to the byteArrayList
         ArrayList<Byte> convertedCRCResult = convertToByteArrayList(CRCresult);
-        //System.out.println(convertedCRCResult.toString());// TODO test
+
         byteArrayList.addAll(convertedCRCResult);
         // the last byte flag is added
         byteArrayList.add(flag);
@@ -149,7 +146,6 @@ public class Frames {
             intArr[i] = arrayOfBits.get(arrayOfBits.size()-i-1);
         }
 
-        //System.out.println(Arrays.toString(intArr));
         return intArr;
     }
 
@@ -170,8 +166,7 @@ public class Frames {
         return result;
     }
 
-    //TODO verifier si les bits restent dans le bon ordre
-    private static ArrayList<Byte> convertToByteArrayList(int[] intArr){
+    private ArrayList<Byte> convertToByteArrayList(int[] intArr){
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
 
@@ -222,38 +217,11 @@ public class Frames {
         return type;
     }
 
-    public void setType(char type) {
-        this.type = type;
-    }
-
     String getData() {
         return data;
     }
 
-    public void setData(String data) {
-        this.data = data;
-    }
-
     byte getNum() {
         return Num;
-    }
-
-    public void setNum(byte num) {
-        Num = num;
-    }
-
-    public static void main(String[] args){
-        int[] test = {1,0,1,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,0,0,0,1};
-        int[] result = divideByCRC(test);
-        int[] test2 = new int[test.length + result.length];
-        for (int i=0 ; i<test.length; i++) test2[i] = test[i];
-        for (int j=0; j<result.length; j++) test2[j+test.length] = result[j];
-        divideByCRC(test2);
-
-
-        byte[] byteTest = {121, 17};   // 01111001,00010001
-        test = byteArrToArr10(byteTest);
-        System.out.println(Arrays.toString(test));
-        System.out.println(convertToByteArrayList(test).toString());
     }
 }
