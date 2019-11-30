@@ -13,7 +13,7 @@ import java.util.Collections;
 public class Frames {
 
     private byte flag = 0b01111110;
-    private int[] CRC = {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
+    private static int[] CRC = /*{1,1,0,1,0,1};*/ {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
 
     private char type;
     private String data;
@@ -91,7 +91,9 @@ public class Frames {
             arrayCRC[1] = this.Num;
 
             // add to this byte array the bytes of the data
-            System.arraycopy(arrayOfByte, 0, arrayCRC, 2, arrayCRC.length - 2);
+            for(int i = 0; i<arrayOfByte.length; i++){
+                arrayCRC[i+2] = arrayOfByte[i];
+            }
 
             for (byte b : arrayOfByte) {
                 byteArrayList.add(b);
@@ -151,7 +153,7 @@ public class Frames {
         return intArr;
     }
 
-    String arr10ToString(int[] fram10){
+    static String arr10ToString(int[] fram10){
         StringBuilder result = new StringBuilder();
         for (int value : fram10) {
             result.append(value);
@@ -169,29 +171,20 @@ public class Frames {
     }
 
     //TODO verifier si les bits restent dans le bon ordre
-    private ArrayList<Byte> convertToByteArrayList(int[] intArr){
+    private static ArrayList<Byte> convertToByteArrayList(int[] intArr){
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
 
-        double val = 0;
-        for(int i=intArr.length-1; i>=0; i--){
-            int j = i%8;
-            if(j == 0 && i!=intArr.length-1){
-                byteArrayList.add((byte)val);
-                val = 0;
-            }
-            if(intArr[i] == 1){
-                val = val + Math.pow(2, j);
-            }
+        byte[] temp = stringToByte(arr10ToString(intArr));
+        for(int i=0; i<temp.length; i++){
+            byteArrayList.add(temp[i]);
         }
-
-        Collections.reverse(byteArrayList);
-
         return byteArrayList;
     }
 
-    public int[] divideByCRC(int[] messageToEncode) {
+    public static int[] divideByCRC(int[] messageToEncode) {
 
+        System.out.println("takes " + Arrays.toString(messageToEncode));
 
         int r = CRC.length-1 + messageToEncode.length-CRC.length;
         // va etre le resultat mais dici la contient data
@@ -206,10 +199,12 @@ public class Frames {
             tempMessageToEncode = bitshift(tempMessageToEncode);
             r--;
         }
+        System.out.println("returns " + Arrays.toString(Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length - 1)));
+
         return Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length-1);
     }
 
-    private int[] bitshift(int[] ints){
+    private static int[] bitshift(int[] ints){
         if(ints.length==1){
             return new int[]{0};
         }
@@ -219,7 +214,7 @@ public class Frames {
     }
 
     //XOR operation with 2 bits given in entry
-    private int xor(int a, int b) {
+    private static int xor(int a, int b) {
         return a^b;
     }
 
@@ -245,5 +240,20 @@ public class Frames {
 
     public void setNum(byte num) {
         Num = num;
+    }
+
+    public static void main(String args[]){
+        int[] test = {1,0,1,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,0,0,0,1};
+        int[] result = divideByCRC(test);
+        int[] test2 = new int[test.length + result.length];
+        for (int i=0 ; i<test.length; i++) test2[i] = test[i];
+        for (int j=0; j<result.length; j++) test2[j+test.length] = result[j];
+        divideByCRC(test2);
+
+
+        byte[] byteTest = {121, 17};   // 01111001,00010001
+        test = byteArrToArr10(byteTest);
+        System.out.println(Arrays.toString(test));
+        System.out.println(convertToByteArrayList(test).toString());
     }
 }
