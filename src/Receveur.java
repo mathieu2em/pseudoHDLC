@@ -63,7 +63,7 @@ class Receveur {
     }
 
     private void verifyDataFrame(Trame trame, String frameStr) throws IOException {
-        System.out.println("Recu du client: Tram avec num " + trame.getNum()%8 + " contenant : " +  trame.getData() );
+        System.out.println("Recu du client: Trame avec num " + trame.getNum()%8 + " contenant : " +  trame.getData() );
 
         byte[] trameEnByteArray = Trame.getFrameToByteArray(frameStr);
 
@@ -100,7 +100,7 @@ class Receveur {
                 inputLine = in.readLine();
                 inputLine = bitUnstuff(inputLine);
                 trameToErase = new Trame(inputLine);
-                System.out.println("Recu du client: Tram avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
+                System.out.println("Recu du client: Trame avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
 
             }
             renduOu++;
@@ -115,14 +115,14 @@ class Receveur {
             String inputLine = in.readLine();
             inputLine = bitUnstuff(inputLine);
             Trame trameToErase = new Trame(inputLine);
-            System.out.println("Recu du client: Tram avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
+            System.out.println("Recu du client: Trame avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
 
             while (trameToErase.getNum() != renduOu)
             {
                 inputLine = in.readLine();
                 inputLine = bitUnstuff(inputLine);
                 trameToErase = new Trame(inputLine);
-                System.out.println("Recu du client: Tram avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
+                System.out.println("Recu du client: Trame avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
             }
             renduOu++;
         }
