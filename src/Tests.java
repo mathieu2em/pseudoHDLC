@@ -35,7 +35,7 @@ public class Tests {
 
     public ArrayList<Byte[]> enleverTrameDeListePourTestTramePerdue(ArrayList<Byte[]> listeTrames)
     {
-        listeTrames.remove(2);
+        listeTrames.remove(6);
         return listeTrames;
     }
 

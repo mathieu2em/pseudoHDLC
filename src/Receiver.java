@@ -54,6 +54,8 @@ public class Receiver {
 
     public void verifyDataFrame(Frames trame)
     {
+        System.out.println("Received from client frame " + (renduOu % 8) + "containing : " +  new Frames(trame.formatFrameToSend()).getData() );
+
         byte[] trameEnByteArray = trame.getFrameToByteArray();
 
         int nombreOctetsSansLesFlags = trameEnByteArray.length - 2;
@@ -70,41 +72,16 @@ public class Receiver {
 
         else if (!verifierNumCorrespondAuCompteur(trameEnByteArray[2], (byte)renduOu))
         {
-            out.println(genREJ(renduOu % 8).formatFrameToSend());
+            out.println(genREJ(renduOu).formatFrameToSend());
             System.out.println("Sending frame REJ " + renduOu % 8 + " to client" );
-
         }
-        else if ( (trameEnByteArray[2] & 0b10000000) == 0b10000000)
+
+        else
         {
             out.println(genRR((renduOu % 8) + 1).formatFrameToSend()); //  RR(renduOu % 8 + 1) car pour RRx, x = valeur de la trame à recevoir (donc + 1 pour prochaine trame)
             System.out.println("Sending frame RR " + ((renduOu % 8) + 1) + " to client" );
-        }
-        else
-        {
             renduOu++;
-            System.out.println("Received from client frame " + (renduOu % 8) + "containing : " +  new Frames(trame.formatFrameToSend()).getData() );
         }
-       /* if (trame.divideByCRC(arrayIntAValider) != null) {
-            out.println(genREJ(renduOu).formatFrameToSend());
-            System.out.println("Sending frame REJ " + renduOu % 8 + " to client" );
-        }
-
-        else if (!verifierNumCorrespondAuCompteur(trameEnByteArray[2], (byte)renduOu))
-        {
-            out.println(genREJ(renduOu).formatFrameToSend());
-            System.out.println("Sending frame REJ " + renduOu % 8 + " to client" );
-
-        }
-        else if ( (trameEnByteArray[2] & 0b10000000) == 0b10000000)
-        {
-            out.println(genRR(renduOu).formatFrameToSend()); // réponse RR(renduOu % 8 + 1)
-            System.out.println("Sending frame RR " + renduOu % 8 + " to client" );
-        }
-        else
-            {
-                renduOu++;
-                System.out.println("Received from client frame number " + trameEnByteArray[2] + "containing : " +  new Frames(trame.formatFrameToSend()).getData() );
-            }*/
     }
 
     private void stop() throws IOException {

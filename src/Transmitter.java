@@ -101,7 +101,7 @@ public class Transmitter {
 
         while (nombreTramesEnvoyees <= trames.size())
         {
-            for (int i = nombreTramesEnvoyees; i < trames.size(); i ++)
+            for (int i = nombreTramesEnvoyees; i < trames.size(); i++)
             {
                 if (peutEnvoyer >= 0)
                 {
@@ -109,7 +109,7 @@ public class Transmitter {
                     System.out.println(
                             "Envoi de la trame " + ((int)trames.get(i).getNum()% 7) + " comportant le contenu : " + trames.get(i).getData() );
                     peutEnvoyer--;
-                    nombreTramesEnvoyees ++;
+                    nombreTramesEnvoyees++;
                 }
             }
 
