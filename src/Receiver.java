@@ -27,6 +27,7 @@ public class Receiver {
         String inputLine;
         Frames frame;
         while ((inputLine = in.readLine()) != null) {
+            inputLine = bitUnstuff(inputLine);
             frame = new Frames(inputLine);
             System.out.println(frame.getData());
             System.out.print("received from client" + inputLine);
@@ -101,11 +102,25 @@ public class Receiver {
         return new Frames('A', num);
     }
 
-    public boolean verifierNumCorrespondAuCompteur(byte num, byte compteur)
-    {
+    public boolean verifierNumCorrespondAuCompteur(byte num, byte compteur){
         if (num == compteur)
             return true;
         else
             return false;
+    }
+    public String bitUnstuff(String frameString){
+        int counter = 0;
+        for(int i = 0; i<frameString.length(); i++){
+            if(frameString.charAt(i)=='1') counter++;
+            else if(frameString.charAt(i)==0){
+                if(counter >= 5) frameString = charRm0At(frameString, i);
+                counter=0;
+            }
+        }
+        return frameString;
+    }
+
+    public static String charRm0At(String str, int p) {
+        return str.substring(0, p) + str.substring(p + 1);
     }
 }

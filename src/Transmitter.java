@@ -146,6 +146,8 @@ public class Transmitter {
     Frames sendFrame(Frames frames) throws IOException {
         String stringFrame = frames.formatFrameToSend();
 
+        stringFrame = bitStuff(stringFrame);
+
         // send the frame as a string
         out.println(stringFrame);
 
@@ -166,14 +168,20 @@ public class Transmitter {
     public String bitStuff(String frameString){
         int counter = 0;
         for(int i = 0; i<frameString.length(); i++){
-            if(frameString.charAt(i)=='1') counter++;
+            if(frameString.charAt(i)=='1'){
+                counter++;
+                if(counter==5) frameString = charAdd0At(frameString, i);
+            }
             else if(frameString.charAt(i)==0){
-                //if(counter>=5) frameString.
+                counter=0;
             }
         }
-        return "";
+        return frameString;
     }
 
+    public static String charAdd0At(String str, int p) {
+        return str.substring(0, p) + '0' + str.substring(p);
+    }
 
     public void stopConnection() throws IOException {
         in.close();
