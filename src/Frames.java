@@ -13,7 +13,7 @@ import java.util.Collections;
 public class Frames {
 
     private byte flag = 0b01111110;
-    private static int[] CRC = /*{1,1,0,1,0,1};*/ {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
+    private static int[] CRC = {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
 
     private char type;
     private String data;
@@ -56,7 +56,7 @@ public class Frames {
     }
 
     // recreates a frame from a byteArray
-    public Frames(String frameString){
+    Frames(String frameString){
         byte[] frameBytes = stringToByte(frameString);
 
         // System.out.println(Arrays.toString(frameBytes)); TODO test
@@ -126,11 +126,11 @@ public class Frames {
         return arr10ToString(byteArrToArr10(result));
     }
 
-    public static byte[] getFrameToByteArray(String frameStr){
+    static byte[] getFrameToByteArray(String frameStr){
         return stringToByte(frameStr);
     }
 
-    public static int[] byteArrToArr10(byte[] bytes){
+    static int[] byteArrToArr10(byte[] bytes){
 
         ArrayList<Integer> arrayOfBits = new ArrayList<>();
 
@@ -182,7 +182,7 @@ public class Frames {
         return byteArrayList;
     }
 
-    public static int[] divideByCRC(int[] messageToEncode) {
+    static int[] divideByCRC(int[] messageToEncode) {
 
         System.out.println("takes " + Arrays.toString(messageToEncode));
 
@@ -218,7 +218,7 @@ public class Frames {
         return a^b;
     }
 
-    public char getType() {
+    char getType() {
         return type;
     }
 
@@ -234,7 +234,7 @@ public class Frames {
         this.data = data;
     }
 
-    public byte getNum() {
+    byte getNum() {
         return Num;
     }
 
@@ -242,7 +242,7 @@ public class Frames {
         Num = num;
     }
 
-    public static void main(String args[]){
+    public static void main(String[] args){
         int[] test = {1,0,1,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,0,0,0,1};
         int[] result = divideByCRC(test);
         int[] test2 = new int[test.length + result.length];

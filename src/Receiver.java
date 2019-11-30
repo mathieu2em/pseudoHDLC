@@ -86,8 +86,12 @@ public class Receiver {
 
         else
         {
-            out.println(genRR((renduOu % 8) + 1).formatFrameToSend()); //  RR(renduOu % 8 + 1) car pour RRx, x = valeur de la trame à recevoir (donc + 1 pour prochaine trame)
-            System.out.println("Sending frame RR " + ((renduOu + 1)%8) + " to client " );
+            if((renduOu + 1)%7 == 0 && renduOu!=0) {
+                //  RR(renduOu % 8 + 1) car pour RRx, x = valeur de la trame à recevoir
+                //  (donc + 1 pour prochaine trame)
+                out.println(genRR((renduOu % 8) + 1).formatFrameToSend());
+                System.out.println("Sending frame RR " + ((renduOu + 1) % 8) + " to client ");
+            }
             renduOu++;
         }
     }

@@ -36,44 +36,40 @@ public class Transmitter {
     public void sendFile(ArrayList<Frames> trames, int choix) throws IOException, InterruptedException {
         int peutEnvoyer = 7; // nbr de trames qu'on peut envoyer avant d'attendre retour
         int nombreTramesEnvoyees = 0; // nbr de trames dont on a recu la confirmation de reception
+        int i = 0;
 
         while (nombreTramesEnvoyees <= trames.size()) // **
         {
-            for (int i = nombreTramesEnvoyees; i < trames.size(); i++)
-            {
-                if (peutEnvoyer >= 0)
-                {
-                    sendFrame(trames.get(i));
-                    System.out.println(
-                            "Envoi de la trame " + ((int)trames.get(i).getNum()% 8) + " comportant le contenu : " + trames.get(i).getData() );
-                    peutEnvoyer--;
-                    nombreTramesEnvoyees++;
-                }
+            while(peutEnvoyer>0) {
+                sendFrame(trames.get(i));
+                System.out.println(
+                        "Envoi de la trame " + ((int) trames.get(i).getNum() % 8) +
+                                " comportant le contenu : " +
+                                trames.get(i).getData());
+                peutEnvoyer--;
+                i++;
             }
-
-            // attend 3 sec et envoit pbit
+            // attend 3 sec et envoit pbit si rien recu
             TimeUnit.SECONDS.sleep(3);
-
             if(choix==4 && nombreTramesEnvoyees==6) in.readLine(); // perds la reponse RR 7 si on est en mode test option 4
             // il n'y a pas de réponse du receveur
-            if (!in.ready())
-            {
+            if (!in.ready()) {
                 System.out.println("nothing received for 3 seconds : send P request");
                 sendFrame(new Frames('P', 0));
             }
             Frames reponseDuReceveur = new Frames(in.readLine());
             char typeDeReponse = reponseDuReceveur.getType();
 
-            if (typeDeReponse == 'A') //réponse RR qui est du # de la dernière trame reçue + 1
-            {
-                peutEnvoyer = 7;
+            //réponse RR qui est du # de la dernière trame reçue + 1
+            if (typeDeReponse == 'A') {
+                peutEnvoyer = Math.min(7, trames.size() - i);
             }
-
-            else // reponse REJ
-            {
+            // reponse REJ
+            else {
                 //ramener nombre de trames envoyées à la dernière trame non reçue
-                int numDeLaTrameARenvoyer = reponseDuReceveur.getNum();
-                nombreTramesEnvoyees = numDeLaTrameARenvoyer;
+                int indexTrameRenvoi = reponseDuReceveur.getNum();
+                nombreTramesEnvoyees = indexTrameRenvoi;
+                i = indexTrameRenvoi;
             }
         }
     }
@@ -84,7 +80,7 @@ public class Transmitter {
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    Frames sendFrame(Frames frames) throws IOException {
+    void sendFrame(Frames frames) throws IOException {
         String stringFrame = frames.formatFrameToSend();
 
         stringFrame = bitStuff(stringFrame);
@@ -95,6 +91,7 @@ public class Transmitter {
         //printing request to console
         //System.out.println("Sent to server : " + stringFrame + " of Type : " + frames.getType() + " with data " + frames.getData());
 
+        /*
         String result = in.readLine();
 
         // printing reply to console
@@ -103,6 +100,8 @@ public class Transmitter {
         System.out.println(" du Type : " + frames1.getType() + " contenant numero " + frames1.getNum());
 
         return frames1;
+
+         */
     }
 
     private String bitStuff(String frameString){
@@ -138,17 +137,14 @@ public class Transmitter {
 
         while (nombreTramesEnvoyees <= trames.size()) // **
         {
-            for (int i = nombreTramesEnvoyees; i < trames.size(); i++)
-            {
-                if (peutEnvoyer >= 0)
-                {
-                    if(i == badFrameIndex) sendFrameBadCRC(trames.get(i));
-                    else sendFrame(trames.get(i));
-                    System.out.println(
-                            "Envoi de la trame " + ((int)trames.get(i).getNum()% 8) + " comportant le contenu : " + trames.get(i).getData() );
-                    peutEnvoyer--;
-                    nombreTramesEnvoyees++;
-                }
+            int i = 0;
+            while(peutEnvoyer>=0) {
+                i++;
+                if (i == badFrameIndex) sendFrameBadCRC(trames.get(i));
+                else sendFrame(trames.get(i));
+                System.out.println(
+                        "Envoi de la trame " + ((int) trames.get(i).getNum() % 8) + " comportant le contenu : " + trames.get(i).getData());
+                peutEnvoyer--;
             }
 
             // il n'y a pas de réponse du receveur

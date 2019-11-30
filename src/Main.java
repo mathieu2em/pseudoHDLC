@@ -39,10 +39,11 @@ public class Main {
 
         // wait that user click 1 to sent a tram asking for connection
         queryCommand("send a tram asking for connection and use of Go-Back-N (REJ)", "1");
-        Frames frames = new Frames('C');
+        Frames frame = new Frames('C');
+        client.sendFrame(frame);
 
         // creates frame containing Num => 0 (for Go-Back-N) and Type => C sends it and wait for answer
-        Frames result = client.sendFrame(frames);//new Frames('C'));
+        Frames result = new Frames(client.in.readLine());//new Frames('C'));
 
         if(result.getType() == 'A'){
             System.out.println("server accepted connection with Go-Back-N by sending back RR with num 0");
