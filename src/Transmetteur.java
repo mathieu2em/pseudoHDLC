@@ -4,12 +4,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-/* the transmitter has to :
-   1 - read file's data
-   2 - product and send trams
-   3 - handle receipts
-   4 - re-send the data in case of error
-*/
 class Transmetteur {
 
     PrintWriter out;
@@ -17,14 +11,16 @@ class Transmetteur {
 
     Transmetteur() {}
 
-    ArrayList<Trame> readFile(String filePath) throws FileNotFoundException {
+    ArrayList<Trame> readFile(String fileName) throws FileNotFoundException {
 
         ArrayList<Trame> frameList = new ArrayList<>();
-        Scanner scanner = new Scanner(new File("test.txt")); // hardcoded pour les tests
+        Scanner scanner = new Scanner(new File(fileName)); // hardcoded pour les tests
         int lineNBR = 0;
 
         Character frameType = 'I';
-        while(scanner.hasNextLine()){
+
+        while(scanner.hasNextLine())
+        {
             Trame frame = new Trame(frameType, scanner.nextLine(), lineNBR++);
             frameList.add(frame);
         }
@@ -41,21 +37,27 @@ class Transmetteur {
 
         System.out.println("se prepare a l'envoi du fichier contenant " + trames.size() + " trames");
 
-        while (nombreTramesEnvoyees < trames.size()-1) // **
+        while (nombreTramesEnvoyees < trames.size()-1)
         {
-            while(peutEnvoyer>0 && i<trames.size() ) {
-                if(choix==2 && i==trames.size()-2 && pasEncoreEteSabotte) {
+            while(peutEnvoyer>0 && i<trames.size() )
+            {
+                if(choix==2 && i==trames.size()-2 && pasEncoreEteSabotte)
+                {
                     System.out.println(" ( saute la trame " + i%8 + " contenant " + trames.get(i).getData() + " pour le test )");
                     // do not send frame
                     pasEncoreEteSabotte = false;
-                } else if(choix==3 && i==trames.size()-2 && pasEncoreEteSabotte) {
+                }
+                else if(choix==3 && i==trames.size()-2 && pasEncoreEteSabotte)
+                {
                     System.out.println(" ( bousille le crc du frame " + i%8 + " contenant " + trames.get(i).getData() + " pour le test )");
                     // do not send frame
                     sendFrameBadCRC(trames.get(i));
                     pasEncoreEteSabotte = false;
-                } else {
+                }
+                else {
                     sendFrame(trames.get(i));
                 }
+
                 System.out.println(
                         "Envoi de la trame " + ((int) trames.get(i).getNum() % 8) +
                                 " comportant le contenu : " +
@@ -63,11 +65,14 @@ class Transmetteur {
                 peutEnvoyer--;
                 i++;
             }
+
             // attend 3 sec et envoit pbit si rien recu
             TimeUnit.SECONDS.sleep(3);
-            if(choix==4 && nombreTramesEnvoyees==6) in.readLine(); // perds la reponse RR 7 si on est en mode test option 4
+            if (choix == 4 && nombreTramesEnvoyees == 6) in.readLine(); // perds la reponse RR 7 si on est en mode test option 4
+
             // il n'y a pas de réponse du receveur
-            if (!in.ready()) {
+            if (!in.ready())
+            {
                 System.out.println("Rien recu pour 3 secondes, envoie une trame de type P");
                 sendFrame(new Trame('P', 0));
             }
@@ -82,6 +87,7 @@ class Transmetteur {
                 System.out.println("serveur a repondu avec RR contenant num : " + reponseDuReceveur.getNum()%8);
 
             }
+
             // reponse REJ
             else {
                 System.out.println("serveur a repondu avec REJ contenant num : " + reponseDuReceveur.getNum()%8);
@@ -112,15 +118,20 @@ class Transmetteur {
 
     private String bitStuff(String frameString){
         int counter = 0;
-        for(int i = 0; i<frameString.length(); i++){
-            if(frameString.charAt(i)=='1'){
+
+        for(int i = 0; i<frameString.length(); i++)
+        {
+            if(frameString.charAt(i)=='1')
+            {
                 counter++;
-                if(counter==5) {
+                if(counter==5)
+                {
                     frameString = charAdd0At(frameString, i + 1);
                     counter = 0;
                 }
             }
-            else if(frameString.charAt(i)=='0'){
+            else if(frameString.charAt(i)=='0')
+            {
                 counter=0;
             }
         }

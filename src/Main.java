@@ -2,10 +2,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-
-// for now I just set a sender/receiver but as basic as possible using this guide
-// https://www.baeldung.com/a-guide-to-java-sockets
-
 public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -56,15 +52,19 @@ public class Main {
                     "[3] : transmission avec erreur CRC\n" +
                     "[4] : transmission avec Pbit");
             choix = scanner.nextLine();
-            //TODO C'EST CETTE PARTIE QU'IL RESTE À INCORPORER DANS LE MAIN POUR LES DIFFÉRENTS CAS DE TESTS
+
             //TEST CAS TRAME PERDUE
-            if (choix.equals("1")) {
+            if (choix.equals("1"))
+            {
                 System.out.println("nom du fichier?");
                 String filename = scanner.nextLine();
                 ArrayList<Trame> trames = client.readFile(filename);
 
                 client.sendFile(trames, 0);
-            } else if (choix.equals("2")) {
+            }
+
+            else if (choix.equals("2"))
+            {
                 System.out.println("nom du fichier?");
                 String filename = scanner.nextLine();
 
@@ -72,15 +72,20 @@ public class Main {
 
                 client.sendFile(trameToSend, 2);
             }
+
             //TEST CAS TRAME ERRONEE
-            else if (choix.equals("3")) {
+            else if (choix.equals("3"))
+            {
                 System.out.println("Nom du fichier?");
                 String filename = scanner.nextLine();
 
                 trameToSend = client.readFile((filename));
 
                 client.sendFile(trameToSend, 3);
-            } else if (choix.equals("4")) {
+            }
+
+            else if (choix.equals("4"))
+            {
                 System.out.println("Nom du fichier?");
                 String filename = scanner.nextLine();
 
@@ -88,8 +93,8 @@ public class Main {
 
                 client.sendFile(trameToSend, 4);
             }
-            System.out.println(" pour quitter [1]\n" +
-                    "pour continuer [2]");
+
+            System.out.println(" pour quitter [1]\n" +  "pour continuer [2]");
             client.out.println("next");
             choix = scanner.nextLine();
         }
@@ -104,17 +109,5 @@ public class Main {
             choice = scanner.nextLine();
 
         } while(!choice.equals(approvementString));
-    }
-
-    private static String bitFlipper(String frameString, int pos) {
-        return frameString.substring(0, pos) + ((frameString.charAt(pos)=='1')?'0':'1') + frameString.substring(pos);
-    }
-
-    public static boolean verifierNumCorrespondAuCompteur(byte num, byte compteur)
-    {
-        if (num == compteur)
-            return true;
-        else
-            return false;
     }
 }

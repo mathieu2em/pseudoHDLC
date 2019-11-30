@@ -19,17 +19,6 @@ class Trame {
     private String data;
     private byte Num;
 
-    /*
-    there is different types of frames :
-    I : trame d’information
-    C : demande de connexion (prend Num = 0 pour Go-Back-N)
-    A : accusé de réception (RR), le champ Num est utilisé dans ce cas pour
-        le numéro à acquitter.
-    R : rejet de la trame Num et de toutes celles envoyées après (REJ)
-    F : fin de la communication.
-    P : trame avec P bit, équivalente à P bit.
-    */
-
     //constructor for the frame re-creation
     Trame(Character type, String nextLine, int nbr) {
 
@@ -42,7 +31,8 @@ class Trame {
     Trame(char type) {
         this.type = type;
         // if connection demand , num=0 to ask for Go-Back-N
-        if (type == 'C') {
+        if (type == 'C')
+        {
             this.Num = 0b00000000; // Num= 0 means that we ask for Go-Back-N
         }
     }
@@ -64,9 +54,6 @@ class Trame {
             this.data = new String(Arrays.copyOfRange(frameBytes, 3, frameBytes.length - 3));
         }
     }
-
-    //private <type> Data;
-    //private <type> CRC;
 
     // format the frame to convert it to byte array to send it properly through the socket
     String formatFrameToSend() {
@@ -119,7 +106,7 @@ class Trame {
         for(int i=0; i<result.length; i++){
             result[i] = byteArrayList.get(i);
         }
-        //System.out.println("formatted" + Arrays.toString(result)); TODO test
+
         return arr10ToString(byteArrToArr10(result));
     }
 
@@ -178,29 +165,32 @@ class Trame {
     }
 
     static int[] divideByCRC(int[] messageToEncode) {
-
-        //System.out.println("takes " + Arrays.toString(messageToEncode));
-
         int r = CRC.length-1 + messageToEncode.length-CRC.length;
+
         // va etre le resultat mais dici la contient data
         int[] tempMessageToEncode = new int[messageToEncode.length + r - 1];
         System.arraycopy(messageToEncode,0,tempMessageToEncode,0, messageToEncode.length);
-        while(r >= 0){
-            if(tempMessageToEncode[0]==1) {
-                for (int j = 0; j < CRC.length; j++) {
+
+        while(r >= 0)
+        {
+            if(tempMessageToEncode[0]==1)
+            {
+                for (int j = 0; j < CRC.length; j++)
+                {
                     tempMessageToEncode[j] = xor(tempMessageToEncode[j], CRC[j]);
                 }
             }
+
             tempMessageToEncode = bitshift(tempMessageToEncode);
             r--;
         }
-        //System.out.println("returns " + Arrays.toString(Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length - 1)));
 
         return Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length-1);
     }
 
     private static int[] bitshift(int[] ints){
-        if(ints.length==1){
+        if(ints.length==1)
+        {
             return new int[]{0};
         }
         if (ints.length - 1 >= 0) System.arraycopy(ints, 1, ints, 0, ints.length - 1);

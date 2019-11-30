@@ -1,13 +1,6 @@
 import java.net.*;
 import java.io.*;
 
-/**
- * the receiver has to be able to:
- *    1 - receive trams
- *    2 - verify presence of errors
- *    3 - produce and send receipts
- *    4 - send REJ in case of errors
- */
 class Receveur {
 
     private ServerSocket serverSocket;
@@ -26,19 +19,16 @@ class Receveur {
     void listen() throws IOException {
         String inputLine;
         Trame frame;
-        while ((inputLine = in.readLine()) != null) {
-            if(inputLine.equals("next")){
+        while ((inputLine = in.readLine()) != null)
+        {
+            if(inputLine.equals("next"))
+            {
                 System.out.println("\n\n");
                 renduOu = 0;
                 continue;
             }
             inputLine = bitUnstuff(inputLine);
             frame = new Trame(inputLine);
-            //System.out.println(frame.getData());
-            //System.out.print("received from client " + inputLine);
-
-            //if(frame.getType() == 'I') System.out.println(" " + frame.getData());
-            //else System.out.println(" connection demand");
 
             processFrame(frame, inputLine);
         }
@@ -46,18 +36,28 @@ class Receveur {
 
     private void processFrame(Trame trame, String frameStr) throws IOException {
         char type = trame.getType();
-        if (type == 'C'){
+        if (type == 'C')
+        {
             System.out.println("Recu une trame de connection demandant go back N, va maintenant envoyer une reponse");
             out.println(genRR(0).formatFrameToSend());
-        } else if (type == 'I'){
+        }
+
+        else if (type == 'I')
+        {
             verifyDataFrame(trame, frameStr);
-        } else if (type == 'P'){
+        }
+
+        else if (type == 'P')
+        {
             System.out.println("recu demande P de la part du client.");
             Trame rr = genRR(renduOu);
             out.println(rr.formatFrameToSend());
             System.out.println("Envoie RR contenant " + rr.getNum()%8);
 
-        } else if (type == 'F'){
+        }
+
+        else if (type == 'F')
+        {
             stop();
         }
     }
@@ -76,14 +76,17 @@ class Receveur {
         arrayIntAValider = Trame.divideByCRC(arrayIntAValider);
 
         boolean CRCwrong = false;
-        for (int value : arrayIntAValider) {
-            if (value == 1) {
+        for (int value : arrayIntAValider)
+        {
+            if (value == 1)
+            {
                 CRCwrong = true;
                 break;
             }
         }
 
-        if (CRCwrong){
+        if (CRCwrong)
+        {
             System.out.println("Une erreur a ete detectee dans le CRC");
             out.println(genREJ(renduOu).formatFrameToSend());
             System.out.println("Envoie Trame REJ " + renduOu % 8 + " au client " );
@@ -91,8 +94,9 @@ class Receveur {
             inputLine = bitUnstuff(inputLine);
             Trame trameToErase = new Trame(inputLine);
             System.out.println("Recu du client: Trame avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
-            //System.out.println(" verifying if " + framesToErase.getNum()%8 + " == " + renduOu);
-            while (trameToErase.getNum() != renduOu){
+
+            while (trameToErase.getNum() != renduOu)
+            {
                 inputLine = in.readLine();
                 inputLine = bitUnstuff(inputLine);
                 trameToErase = new Trame(inputLine);
@@ -102,7 +106,8 @@ class Receveur {
             renduOu++;
         }
 
-        else if (!verifierNumCorrespondAuCompteur(trameEnByteArray[2], (byte)renduOu)){
+        else if (!verifierNumCorrespondAuCompteur(trameEnByteArray[2], (byte)renduOu))
+        {
             out.println(genREJ(renduOu).formatFrameToSend());
             System.out.println("Le compteur a détecté une trame manquante");
             System.out.println("Envoie trame REJ " + renduOu % 8 + " au client " );
@@ -111,8 +116,9 @@ class Receveur {
             inputLine = bitUnstuff(inputLine);
             Trame trameToErase = new Trame(inputLine);
             System.out.println("Recu du client: Tram avec num " + trameToErase.getNum()%8 + " contenant : " +  trameToErase.getData() );
-            //System.out.println(" verifying if " + framesToErase.getNum()%8 + " == " + renduOu);
-            while (trameToErase.getNum() != renduOu){
+
+            while (trameToErase.getNum() != renduOu)
+            {
                 inputLine = in.readLine();
                 inputLine = bitUnstuff(inputLine);
                 trameToErase = new Trame(inputLine);
@@ -120,11 +126,10 @@ class Receveur {
             }
             renduOu++;
         }
-        else{
+
+        else {
             if((renduOu)%8 == 6) {
                 System.out.println(" moment d'envoyer un RR ");
-                //  RR((renduOu+1) % 8) car pour RRx, x = valeur de la trame à recevoir
-                //  (donc + 1 pour prochaine trame)
                 out.println(genRR((renduOu+1) % 8).formatFrameToSend());
                 System.out.println("Envoi Trame RR " + ((renduOu+1) % 8) + " au client ");
             }
