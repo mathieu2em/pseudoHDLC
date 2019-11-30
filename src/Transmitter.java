@@ -38,7 +38,9 @@ public class Transmitter {
         int nombreTramesEnvoyees = 0; // nbr de trames dont on a recu la confirmation de reception
         int i = 0;
 
-        while (nombreTramesEnvoyees <= trames.size()) // **
+        System.out.println("se prepare a l'envoi du fichier contenant " + trames.size() + " trames");
+
+        while (nombreTramesEnvoyees < trames.size()) // **
         {
             while(peutEnvoyer>0) {
                 sendFrame(trames.get(i));
@@ -59,10 +61,13 @@ public class Transmitter {
             }
             Frames reponseDuReceveur = new Frames(in.readLine());
             char typeDeReponse = reponseDuReceveur.getType();
+            System.out.println("serveur a repondu avec trame de type " + typeDeReponse +
+                    " contenant num : " + reponseDuReceveur.getNum());
 
             //réponse RR qui est du # de la dernière trame reçue + 1
             if (typeDeReponse == 'A') {
                 peutEnvoyer = Math.min(7, trames.size() - i);
+                nombreTramesEnvoyees = reponseDuReceveur.getNum();
             }
             // reponse REJ
             else {

@@ -149,7 +149,7 @@ public class Frames {
             intArr[i] = arrayOfBits.get(arrayOfBits.size()-i-1);
         }
 
-        System.out.println(Arrays.toString(intArr));
+        //System.out.println(Arrays.toString(intArr));
         return intArr;
     }
 
@@ -184,7 +184,7 @@ public class Frames {
 
     static int[] divideByCRC(int[] messageToEncode) {
 
-        System.out.println("takes " + Arrays.toString(messageToEncode));
+        //System.out.println("takes " + Arrays.toString(messageToEncode));
 
         int r = CRC.length-1 + messageToEncode.length-CRC.length;
         // va etre le resultat mais dici la contient data
@@ -199,7 +199,7 @@ public class Frames {
             tempMessageToEncode = bitshift(tempMessageToEncode);
             r--;
         }
-        System.out.println("returns " + Arrays.toString(Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length - 1)));
+        //System.out.println("returns " + Arrays.toString(Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length - 1)));
 
         return Arrays.copyOfRange(tempMessageToEncode, 0, CRC.length-1);
     }
