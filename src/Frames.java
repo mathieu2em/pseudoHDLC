@@ -41,7 +41,8 @@ public class Frames {
     }
 
     // constructeur pour les frames qui n'ont pas besoin de data
-    Frames(Character type) {
+    Frames(char type) {
+        this.type = type;
         // if connection demand , num=0 to ask for Go-Back-N
         if (type == 'C') {
             this.Num = 0b00000000; // Num= 0 means that we ask for Go-Back-N
@@ -49,7 +50,7 @@ public class Frames {
     }
 
     // constructeur pour les frames RR et REJ
-    Frames(Character type, int num){
+    Frames(char type, int num){
         this.type = type;
         this.Num = (byte)num;
     }
@@ -58,11 +59,11 @@ public class Frames {
     public Frames(String frameString){
         byte[] frameBytes = stringToByte(frameString);
 
-        System.out.println(Arrays.toString(frameBytes));
+        // System.out.println(Arrays.toString(frameBytes)); TODO test
         // set type
         this.type = (char)frameBytes[1];
         this.Num = frameBytes[2];
-        if(this.type == 'I'){ // RR
+        if(this.type == 'I'){
             this.data = new String(Arrays.copyOfRange(frameBytes, 3, frameBytes.length - 3));
         }
     }
@@ -72,7 +73,8 @@ public class Frames {
 
     // format the frame to convert it to byte array to send it properly through the socket
     String formatFrameToSend() {
-        byte[] arrayOfByte = data.getBytes();
+        byte[] arrayOfByte;
+        byte[] arrayCRC;
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
 
@@ -81,23 +83,34 @@ public class Frames {
         byteArrayList.add((byte) this.type);
         byteArrayList.add(this.Num);
 
-        for (byte b : arrayOfByte) {
-            byteArrayList.add(b);
+        if(this.type == 'I') {
+            arrayOfByte = data.getBytes();
+            arrayCRC = new byte[arrayOfByte.length + 2];
+            // generate the byte array to modify for the crc
+            arrayCRC[0] = (byte)this.type;
+            arrayCRC[1] = this.Num;
+
+            // add to this byte array the bytes of the data
+            System.arraycopy(arrayOfByte, 0, arrayCRC, 2, arrayCRC.length - 2);
+
+            for (byte b : arrayOfByte) {
+                byteArrayList.add(b);
+            }
+
+        } else {
+            arrayCRC = new byte[2];
+            // generate the byte array to modify for the crc
+            arrayCRC[0] = (byte)this.type;
+            arrayCRC[1] = this.Num;
         }
 
-        // generate the byte array to modify for the crc
-        byte[] arrayCRC = new byte[arrayOfByte.length + 2];
-        arrayCRC[0] = (byte)this.type;
-        arrayCRC[1] = this.Num;
-        // add to this byte array the bytes of the data
-        System.arraycopy(arrayOfByte, 0, arrayCRC, 2, arrayCRC.length - 2);
         //appel de la fonction computeCRC()
-        int[] data = byteArrToArr10(arrayCRC);
+        int[] dataCRC = byteArrToArr10(arrayCRC);
 
-        int[] CRCresult = divideByCRC(data);
+        int[] CRCresult = divideByCRC(dataCRC);
         // the CRC result is added to the byteArrayList
         ArrayList<Byte> convertedCRCResult = convertToByteArrayList(CRCresult);
-        System.out.println(convertedCRCResult.toString());// TODO test
+        //System.out.println(convertedCRCResult.toString());// TODO test
         byteArrayList.addAll(convertedCRCResult);
         // the last byte flag is added
         byteArrayList.add(flag);
@@ -107,12 +120,12 @@ public class Frames {
         for(int i=0; i<result.length; i++){
             result[i] = byteArrayList.get(i);
         }
-        System.out.println("formatted" + Arrays.toString(result));
+        //System.out.println("formatted" + Arrays.toString(result)); TODO test
         return arr10ToString(byteArrToArr10(result));
     }
 
-    public byte[] getFrameToByteArray(){
-        return stringToByte(formatFrameToSend());
+    public static byte[] getFrameToByteArray(String frameStr){
+        return stringToByte(frameStr);
     }
 
     public static int[] byteArrToArr10(byte[] bytes){
@@ -134,10 +147,11 @@ public class Frames {
             intArr[i] = arrayOfBits.get(arrayOfBits.size()-i-1);
         }
 
+        System.out.println(Arrays.toString(intArr));
         return intArr;
     }
 
-    private String arr10ToString(int[] fram10){
+    String arr10ToString(int[] fram10){
         StringBuilder result = new StringBuilder();
         for (int value : fram10) {
             result.append(value);
@@ -145,7 +159,7 @@ public class Frames {
         return result.toString();
     }
 
-    private byte[] stringToByte(String intArr){
+    static byte[] stringToByte(String intArr){
         byte[] result = new byte[intArr.length()/8];
         for(int i = 0; i<intArr.length(); i+=8){
             long la = Long.parseLong(intArr.substring(i, i+8), 2);

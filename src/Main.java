@@ -1,5 +1,4 @@
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -34,7 +33,7 @@ public class Main {
     private static void transmitterProtocol(Scanner scanner) throws IOException, InterruptedException {
         System.out.println("you chose \"start a transmitter\" ");
         Transmitter client = new Transmitter();
-        ArrayList<Frames> framesReceived = new ArrayList<>();
+        ArrayList<Frames> framesToSend;
 
         client.startConnection();
 
@@ -43,7 +42,11 @@ public class Main {
         Frames frames = new Frames('C');
 
         // creates frame containing Num => 0 (for Go-Back-N) and Type => C sends it and wait for answer
-        client.sendFrame(frames);//new Frames('C')); //TODO verifier reponse
+        Frames result = client.sendFrame(frames);//new Frames('C'));
+
+        if(result.getType() == 'A'){
+            System.out.println("server accepted connection with Go-Back-N by sending back RR with num 0");
+        }
 
         System.out.println("========== Bienvenue dans la section de tests. Quel cas voulez-vous tester? ==========\n" +
                 "[1] : transmission sans erreur\n" +
@@ -59,43 +62,32 @@ public class Main {
             String filename = scanner.nextLine();
             ArrayList<Frames> trames = client.readFile(filename);
 
-            client.sendFile(trames);
+            client.sendFile(trames, 0);
         }
         else if (choix.equals("2")) {
             System.out.println("nom du fichier?");
             String filename = scanner.nextLine();
 
-            framesReceived = enleverTrameDeListePourTestTramePerdue(client.readFile(filename));
+            framesToSend = enleverTrameDeListePourTestTramePerdue(client.readFile(filename));
 
-            client.sendFile(framesReceived);
+            client.sendFile(framesToSend, 0);
         }
         //TEST CAS TRAME ERRONEE
         else if (choix.equals("3")) {
             System.out.println("Nom du fichier?");
             String filename = scanner.nextLine();
 
-            framesReceived = client.readFile((filename));
-            Frames trameAModifier = framesReceived.get(6);
+            framesToSend = client.readFile((filename));
 
-            //premier bit 0
-            if ((octetAModifierDeLaSeptiemeTrame & 0b10000000) == 1)
-                 octetModifie = (byte)(octetAModifierDeLaSeptiemeTrame & 0b01111111);
-
-            else
-                 octetModifie = (byte)(octetAModifierDeLaSeptiemeTrame & 0b11111111);
-
-
-
+            client.sendFileWithBadCRC(framesToSend, 6);
         }
-        if (!verifierNumCorrespondAuCompteur(framesReceived.get(i)[2], compteurDeTrames))
-            {
-                System.out.println("La trame " + compteurDeTrames + " s'est perdue.");
-            }
-        compteurDeTrames += (byte)1;
-        
-        // Diviser par le CRC
-        if (frame.divideByCRC(intArrayFrameToCheck) != null) {
-            System.out.println("La trame " + 3 + " est erronée.");
+        else if (choix.equals("4")){
+            System.out.println("Nom du fichier?");
+            String filename = scanner.nextLine();
+
+            framesToSend = client.readFile((filename));
+
+            client.sendFile(framesToSend, 4);
         }
     }
 
@@ -115,10 +107,15 @@ public class Main {
         return listeTrames;
     }
 
-    private static int[] bitFlipper(int[] message) {
-        if (message[0] == 1)
-            message[0] = 0;
+    private static String bitFlipper(String frameString, int pos) {
+        return frameString.substring(0, pos) + ((frameString.charAt(pos)=='1')?'0':'1') + frameString.substring(pos);
+    }
+
+    public static boolean verifierNumCorrespondAuCompteur(byte num, byte compteur)
+    {
+        if (num == compteur)
+            return true;
         else
-            message[0] = 1;
-        return message;
+            return false;
+    }
 }
