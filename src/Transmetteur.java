@@ -10,9 +10,8 @@ import java.util.concurrent.TimeUnit;
    3 - handle receipts
    4 - re-send the data in case of error
 */
-public class Transmetteur {
+class Transmetteur {
 
-    private Socket clientSocket;
     PrintWriter out;
     BufferedReader in;
 
@@ -21,7 +20,7 @@ public class Transmetteur {
     ArrayList<Trame> readFile(String filePath) throws FileNotFoundException {
 
         ArrayList<Trame> frameList = new ArrayList<>();
-        Scanner scanner = new Scanner(new File("test.txt")); // TODO hardcoded pour les tests
+        Scanner scanner = new Scanner(new File("test.txt")); // hardcoded pour les tests
         int lineNBR = 0;
 
         Character frameType = 'I';
@@ -33,27 +32,27 @@ public class Transmetteur {
         return frameList;
     }
 
-    public void sendFile(ArrayList<Trame> trames, int choix) throws IOException, InterruptedException {
+    void sendFile(ArrayList<Trame> trames, int choix) throws IOException, InterruptedException {
         int peutEnvoyer = 7; // nbr de trames qu'on peut envoyer avant d'attendre retour
         int nombreTramesEnvoyees = 0; // nbr de trames dont on a recu la confirmation de reception
         int i = 0;
 
-        boolean pasEncoreEteSabotté = true;
+        boolean pasEncoreEteSabotte = true;
 
         System.out.println("se prepare a l'envoi du fichier contenant " + trames.size() + " trames");
 
         while (nombreTramesEnvoyees < trames.size()-1) // **
         {
             while(peutEnvoyer>0 && i<trames.size() ) {
-                if(choix==2 && i==trames.size()-2 && pasEncoreEteSabotté) {
+                if(choix==2 && i==trames.size()-2 && pasEncoreEteSabotte) {
                     System.out.println(" ( saute la trame " + i%8 + " contenant " + trames.get(i).getData() + " pour le test )");
                     // do not send frame
-                    pasEncoreEteSabotté = false;
-                } else if(choix==3 && i==trames.size()-2 && pasEncoreEteSabotté) {
+                    pasEncoreEteSabotte = false;
+                } else if(choix==3 && i==trames.size()-2 && pasEncoreEteSabotte) {
                     System.out.println(" ( bousille le crc du frame " + i%8 + " contenant " + trames.get(i).getData() + " pour le test )");
                     // do not send frame
                     sendFrameBadCRC(trames.get(i));
-                    pasEncoreEteSabotté = false;
+                    pasEncoreEteSabotte = false;
                 } else {
                     sendFrame(trames.get(i));
                 }
@@ -97,12 +96,12 @@ public class Transmetteur {
     }
 
     void startConnection() throws IOException {
-        clientSocket = new Socket("127.0.0.1", 6666);
+        Socket clientSocket = new Socket("127.0.0.1", 6666);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
-    void sendFrame(Trame trame) throws IOException {
+    void sendFrame(Trame trame) {
         String stringFrame = trame.formatFrameToSend();
 
         stringFrame = bitStuff(stringFrame);
@@ -128,24 +127,18 @@ public class Transmetteur {
         return frameString;
     }
 
-    public static String charAdd0At(String str, int p) {
+    private static String charAdd0At(String str, int p) {
         return str.substring(0, p) + '0' + str.substring(p);
     }
 
-    public void stopConnection() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
-    }
-
-    private void sendFrameBadCRC(Trame trame) throws IOException {
+    private void sendFrameBadCRC(Trame trame) {
         String stringFrame = trame.formatFrameToSend();
 
-        byte[] frameBytes = trame.stringToByte(stringFrame);
+        byte[] frameBytes = Trame.stringToByte(stringFrame);
 
         frameBytes[frameBytes.length-2] = (byte)(~frameBytes[frameBytes.length-2]);
 
-        stringFrame = trame.arr10ToString(Trame.byteArrToArr10(frameBytes));
+        stringFrame = Trame.arr10ToString(Trame.byteArrToArr10(frameBytes));
 
         stringFrame = bitStuff(stringFrame);
 

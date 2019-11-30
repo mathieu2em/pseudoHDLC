@@ -8,7 +8,7 @@ import java.io.*;
  *    3 - produce and send receipts
  *    4 - send REJ in case of errors
  */
-public class Receveur {
+class Receveur {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
@@ -62,7 +62,7 @@ public class Receveur {
         }
     }
 
-    public void verifyDataFrame(Trame trame, String frameStr) throws IOException {
+    private void verifyDataFrame(Trame trame, String frameStr) throws IOException {
         System.out.println("Recu du client: Tram avec num " + trame.getNum()%8 + " contenant : " +  trame.getData() );
 
         byte[] trameEnByteArray = Trame.getFrameToByteArray(frameStr);
@@ -73,11 +73,14 @@ public class Receveur {
         System.arraycopy(trameEnByteArray, 1, trameSansFlags, 0, nombreOctetsSansLesFlags);
 
         int[] arrayIntAValider = Trame.byteArrToArr10(trameSansFlags);
-        arrayIntAValider = trame.divideByCRC(arrayIntAValider);
+        arrayIntAValider = Trame.divideByCRC(arrayIntAValider);
 
         boolean CRCwrong = false;
-        for(int i=0;i<arrayIntAValider.length; i++){
-            if( arrayIntAValider[i] == 1) CRCwrong = true;
+        for (int value : arrayIntAValider) {
+            if (value == 1) {
+                CRCwrong = true;
+                break;
+            }
         }
 
         if (CRCwrong){
@@ -146,13 +149,10 @@ public class Receveur {
         return new Trame('A', num);
     }
 
-    public boolean verifierNumCorrespondAuCompteur(byte num, byte compteur){
-        if (num == compteur)
-            return true;
-        else
-            return false;
+    private boolean verifierNumCorrespondAuCompteur(byte num, byte compteur){
+        return num == compteur;
     }
-    public String bitUnstuff(String frameString){
+    private String bitUnstuff(String frameString){
         int counter = 0;
         for(int i = 0; i<frameString.length(); i++){
             if(frameString.charAt(i)=='1') counter++;
@@ -164,7 +164,7 @@ public class Receveur {
         return frameString;
     }
 
-    public static String charRm0At(String str, int p) {
+    private static String charRm0At(String str, int p) {
         return str.substring(0, p) + str.substring(p + 1);
     }
 }

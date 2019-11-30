@@ -10,7 +10,7 @@ import java.util.Collections;
    Data : variable size , used to carry data, if receipt tram : size = null , size calculated by detecting flags
    CRC  : contains the checksum computed using CRC , 2 octets, checksum is calculated on Type, Num and Data
  */
-public class Trame {
+class Trame {
 
     private byte flag = 0b01111110;
     private static int[] CRC = {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
@@ -166,7 +166,7 @@ public class Trame {
         return result;
     }
 
-    private static ArrayList<Byte> convertToByteArrayList(int[] intArr){
+    private ArrayList<Byte> convertToByteArrayList(int[] intArr){
 
         ArrayList<Byte> byteArrayList = new ArrayList<>();
 
